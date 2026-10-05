@@ -76,8 +76,9 @@ func (service *FileStatsService) Get(c *gin.Context) (*FileStatsResponse, error)
 
 	notRoot := file.NameNEQ(inventory.RootFolderName)
 	res := &FileStatsResponse{
-		UserStats:   make([]UserFileStat, 0),
-		PolicyStats: make([]PolicyFileStat, 0),
+		UserStats:     make([]UserFileStat, 0),
+		PolicyStats:   make([]PolicyFileStat, 0),
+		RecentUploads: make([]FileBrief, 0),
 	}
 
 	// Global counters.
