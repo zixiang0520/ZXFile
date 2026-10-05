@@ -22,11 +22,11 @@ const (
 type (
 	// AuditListService lists site-wide audit logs.
 	AuditListService struct {
-		Page          int            `form:"page" binding:"min=1"`
-		PageSize      int            `form:"page_size" binding:"min=10,max=100"`
-		OrderBy       string         `form:"order_by"`
-		OrderDirection string        `form:"order_direction"`
-		Conditions    map[string]string `form:"conditions"`
+		Page           int               `json:"page" binding:"min=1"`
+		PageSize       int               `json:"page_size" binding:"min=10,max=100"`
+		OrderBy        string            `json:"order_by"`
+		OrderDirection string            `json:"order_direction"`
+		Conditions     map[string]string `json:"conditions"`
 	}
 	AuditListParamCtx struct{}
 
@@ -117,9 +117,9 @@ func (service *AuditListService) List(c *gin.Context) (*AuditListResponse, error
 type (
 	// AbuseListService lists abuse reports.
 	AbuseListService struct {
-		Page          int            `form:"page" binding:"min=1"`
-		PageSize      int            `form:"page_size" binding:"min=10,max=100"`
-		Conditions    map[string]string `form:"conditions"`
+		Page       int               `json:"page" binding:"min=1"`
+		PageSize   int               `json:"page_size" binding:"min=10,max=100"`
+		Conditions map[string]string `json:"conditions"`
 	}
 	AbuseListParamCtx struct{}
 

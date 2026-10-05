@@ -903,14 +903,14 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 			{
 				// Audit logs (Pro "Events" reimplemented)
 				admin.POST("audit",
-					controllers.FromQuery[adminsvc.AuditListService](adminsvc.AuditListParamCtx{}),
+					controllers.FromJSON[adminsvc.AuditListService](adminsvc.AuditListParamCtx{}),
 					controllers.AdminAuditList,
 				)
 				// Abuse reports (Pro feature reimplemented)
 				abuse := admin.Group("abuse")
 				{
 					abuse.POST("",
-						controllers.FromQuery[adminsvc.AbuseListService](adminsvc.AbuseListParamCtx{}),
+						controllers.FromJSON[adminsvc.AbuseListService](adminsvc.AbuseListParamCtx{}),
 						controllers.AdminAbuseList,
 					)
 					abuse.POST(":id",
