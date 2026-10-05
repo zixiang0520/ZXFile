@@ -1,0 +1,19 @@
+title: "General Discussion"
+body:
+  - type: checkboxes
+    attributes:
+      label: Self Checks
+      description: "To make sure we get to you in time, please check the following :)"
+      options:
+        - label: I have searched for existing issues [search for existing issues](https://github.com/cloudreve/cloudreve/issues), including closed ones.
+          required: true
+        - label: I confirm that I am using English to submit this report, otherwise it will be closed. / 请使用英语提交，否则会被关闭。
+          required: true
+        - label: "Please do not modify this template :) and fill in all the required fields."
+          required: true
+  - type: textarea
+    attributes:
+      label: Content
+      placeholder: Please describe the content you would like to discuss.
+    validations:
+      required: true

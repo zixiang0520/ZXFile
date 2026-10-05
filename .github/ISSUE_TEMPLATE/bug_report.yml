@@ -1,0 +1,91 @@
+name: "🕷️ Bug report"
+description: Report errors or unexpected behavior
+labels:
+  - bug
+body:
+  - type: checkboxes
+    attributes:
+      label: Self Checks
+      description: "To make sure we get to you in time, please check the following :)"
+      options:
+        - label: I have read the [Contributing Guide](https://docs.cloudreve.org/api/contributing) and [Language Policy](https://github.com/cloudreve/cloudreve/discussions/3335).
+          required: true
+        - label: This is only for bug report, if you would like to ask a question, please head to [Discussions](https://github.com/cloudreve/cloudreve/discussions).
+          required: true
+        - label: I have searched for existing issues [search for existing issues](https://github.com/cloudreve/cloudreve/issues), including closed ones.
+          required: true
+        - label: I confirm that I am using English to submit this report, otherwise it will be closed. / 请使用英语提交，否则会被关闭。
+          required: true
+        - label: "Please do not modify this template :) and fill in all the required fields."
+          required: true
+
+  - type: input
+    attributes:
+      label: Cloudreve version
+      description: e.g. 4.14.0
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Pro or Community Edition
+      description: What version of Cloudreve are you using?
+      multiple: true
+      options:
+        - Pro
+        - Community (Open Source)
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Database type
+      description: What database are you using?
+      multiple: true
+      options:
+        - MySQL
+        - PostgreSQL
+        - SQLite
+        - I don't know
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Browser and operating system
+      description: What browser and operating system are you using?
+      placeholder: E.g. Chrome 123.0.0 on macOS 14.0.0
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: We highly suggest including screenshots and a bug report log. Please use the right markdown syntax for code blocks.
+      placeholder: Having detailed steps helps us reproduce the bug. If you have logs, please use fenced code blocks (triple backticks ```) to format them.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ✔️ Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: What were you expecting? Please do not copy and paste the steps to reproduce here.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: ❌ Actual Behavior
+      description: Describe what actually happened.
+      placeholder: What happened instead? Please do not copy and paste the steps to reproduce here.
+    validations:
+      required: false
+
+  - type: input
+    attributes:
+      label: Addition context information
+      description: Provide any additional context information that might be helpful.
+      placeholder: Any additional information that might be helpful.
+    validations:
+      required: false

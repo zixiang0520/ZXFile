@@ -1,0 +1,41 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.db
+*.bin
+/release/
+application/statics/assets.zip
+master_v4
+slave_v4
+__debug*
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Development enviroment
+.idea/*
+uploads/*
+temp
+
+# Version control
+version.lock
+
+# Config file
+*.ini
+conf/conf.ini
+/statik/
+.vscode/
+
+dist/
+data/
+tmp/
+.devcontainer/
+cloudreve
+.DS_Store
+cloudreve-magic
