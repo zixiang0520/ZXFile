@@ -675,3 +675,46 @@ func AdminBatchDeleteOAuthClient(c *gin.Context) {
 	}
 	c.JSON(200, serializer.Response{})
 }
+
+// AdminAuditList lists site-wide audit logs
+func AdminAuditList(c *gin.Context) {
+	service := ParametersFromContext[*admin.AuditListService](c, admin.AuditListParamCtx{})
+	res, err := service.List(c)
+	if err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{Data: res})
+}
+
+// AdminAbuseList lists abuse reports
+func AdminAbuseList(c *gin.Context) {
+	service := ParametersFromContext[*admin.AbuseListService](c, admin.AbuseListParamCtx{})
+	res, err := service.List(c)
+	if err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{Data: res})
+}
+
+// AdminAbuseHandle updates an abuse report
+func AdminAbuseHandle(c *gin.Context) {
+	service := ParametersFromContext[*admin.AbuseHandleService](c, admin.AbuseHandleParamCtx{})
+	body := ParametersFromContext[*admin.AbuseHandleBodyService](c, admin.AbuseHandleBodyParamCtx{})
+	if err := service.Handle(c, body); err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{})
+}
+
+// AdminAbuseDelete batch deletes abuse reports
+func AdminAbuseDelete(c *gin.Context) {
+	service := ParametersFromContext[*admin.AbuseDeleteService](c, admin.AbuseDeleteParamCtx{})
+	if err := service.Delete(c); err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{})
+}

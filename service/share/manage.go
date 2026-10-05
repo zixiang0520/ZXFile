@@ -101,6 +101,11 @@ func (service *ShareCreateService) Upsert(c *gin.Context, existed int) (string, 
 	}
 
 	base := dep.SettingProvider().SiteURL(c)
+	shareName := ""
+	if share.Edges.File != nil {
+		shareName = share.Edges.File.Name
+	}
+	explorer.WriteAudit(c, "share.create", "share", shareName, "")
 	return explorer.BuildShareLink(share, dep.HashIDEncoder(), base, true), nil
 }
 
@@ -194,5 +199,10 @@ func DeleteShare(c *gin.Context, shareId int) error {
 		return serializer.NewError(serializer.CodeDBError, "Failed to delete share", err)
 	}
 
+	shareName := ""
+	if share.Edges.File != nil {
+		shareName = share.Edges.File.Name
+	}
+	explorer.WriteAudit(c, "share.delete", "share", shareName, "")
 	return nil
 }

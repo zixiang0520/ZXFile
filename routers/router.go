@@ -254,6 +254,11 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 				controllers.AnonymousPermLink(true))
 		}
 
+		// Submit an abuse report for a share (anonymous allowed)
+		v4.POST("s/report",
+			controllers.FromJSON[sharesvc.AbuseReportSubmitService](sharesvc.AbuseReportSubmitParamCtx{}),
+			controllers.SubmitAbuseReport,
+		)
 		shareShort := r.Group("s")
 		{
 			shareShort.GET(":id",
@@ -845,6 +850,11 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 				controllers.FromQuery[sharesvc.ShareInfoService](sharesvc.ShareInfoParamCtx{}),
 				controllers.GetShare,
 			)
+			// Submit an abuse report for a share (anonymous allowed)
+			share.POST("report",
+				controllers.FromJSON[sharesvc.AbuseReportSubmitService](sharesvc.AbuseReportSubmitParamCtx{}),
+				controllers.SubmitAbuseReport,
+			)
 			// Save a share as shortcut in "Shared with me"
 			share.POST("redeem",
 				middleware.LoginRequired(),
@@ -891,6 +901,30 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 			admin := auth.Group("admin", middleware.IsAdmin())
 			admin.Use(middleware.RequiredScopes(types.ScopeAdminRead))
 			{
+				// Audit logs (Pro "Events" reimplemented)
+				admin.POST("audit",
+					controllers.FromQuery[adminsvc.AuditListService](adminsvc.AuditListParamCtx{}),
+					controllers.AdminAuditList,
+				)
+				// Abuse reports (Pro feature reimplemented)
+				abuse := admin.Group("abuse")
+				{
+					abuse.POST("",
+						controllers.FromQuery[adminsvc.AbuseListService](adminsvc.AbuseListParamCtx{}),
+						controllers.AdminAbuseList,
+					)
+					abuse.POST(":id",
+						middleware.RequiredScopes(types.ScopeAdminWrite),
+						controllers.FromUri[adminsvc.AbuseHandleService](adminsvc.AbuseHandleParamCtx{}),
+						controllers.FromJSON[adminsvc.AbuseHandleBodyService](adminsvc.AbuseHandleBodyParamCtx{}),
+						controllers.AdminAbuseHandle,
+					)
+					abuse.POST("batch/delete",
+						middleware.RequiredScopes(types.ScopeAdminWrite),
+						controllers.FromJSON[adminsvc.AbuseDeleteService](adminsvc.AbuseDeleteParamCtx{}),
+						controllers.AdminAbuseDelete,
+					)
+				}
 				admin.GET("summary",
 					controllers.FromQuery[adminsvc.SummaryService](adminsvc.SummaryParamCtx{}),
 					controllers.AdminSummary,

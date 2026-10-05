@@ -97,3 +97,13 @@ func ShareRedirect(c *gin.Context) {
 	service := ParametersFromContext[*share.ShortLinkRedirectService](c, share.ShortLinkRedirectParamCtx{})
 	c.Redirect(http.StatusFound, service.RedirectTo(c))
 }
+
+// SubmitAbuseReport submits an abuse report for a share (anonymous allowed)
+func SubmitAbuseReport(c *gin.Context) {
+	service := ParametersFromContext[*share.AbuseReportSubmitService](c, share.AbuseReportSubmitParamCtx{})
+	if err := service.Submit(c); err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{})
+}

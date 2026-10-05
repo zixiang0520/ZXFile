@@ -55,6 +55,8 @@ const (
 	EdgeTasks = "tasks"
 	// EdgeFsevents holds the string denoting the fsevents edge name in mutations.
 	EdgeFsevents = "fsevents"
+	// EdgeAuditlogs holds the string denoting the auditlogs edge name in mutations.
+	EdgeAuditlogs = "auditlogs"
 	// EdgeEntities holds the string denoting the entities edge name in mutations.
 	EdgeEntities = "entities"
 	// EdgeOauthGrants holds the string denoting the oauth_grants edge name in mutations.
@@ -110,6 +112,13 @@ const (
 	FseventsInverseTable = "fs_events"
 	// FseventsColumn is the table column denoting the fsevents relation/edge.
 	FseventsColumn = "user_fsevent"
+	// AuditlogsTable is the table that holds the auditlogs relation/edge.
+	AuditlogsTable = "audit_logs"
+	// AuditlogsInverseTable is the table name for the AuditLog entity.
+	// It exists in this package in order to avoid circular dependency with the "auditlog" package.
+	AuditlogsInverseTable = "audit_logs"
+	// AuditlogsColumn is the table column denoting the auditlogs relation/edge.
+	AuditlogsColumn = "user_id"
 	// EntitiesTable is the table that holds the entities relation/edge.
 	EntitiesTable = "entities"
 	// EntitiesInverseTable is the table name for the Entity entity.
@@ -359,6 +368,20 @@ func ByFsevents(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByAuditlogsCount orders the results by auditlogs count.
+func ByAuditlogsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuditlogsStep(), opts...)
+	}
+}
+
+// ByAuditlogs orders the results by auditlogs terms.
+func ByAuditlogs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuditlogsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByEntitiesCount orders the results by entities count.
 func ByEntitiesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -433,6 +456,13 @@ func newFseventsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(FseventsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, FseventsTable, FseventsColumn),
+	)
+}
+func newAuditlogsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuditlogsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, AuditlogsTable, AuditlogsColumn),
 	)
 }
 func newEntitiesStep() *sqlgraph.Step {

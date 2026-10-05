@@ -841,6 +841,29 @@ func HasFseventsWith(preds ...predicate.FsEvent) predicate.User {
 	})
 }
 
+// HasAuditlogs applies the HasEdge predicate on the "auditlogs" edge.
+func HasAuditlogs() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, AuditlogsTable, AuditlogsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasAuditlogsWith applies the HasEdge predicate on the "auditlogs" edge with a given conditions (other predicates).
+func HasAuditlogsWith(preds ...predicate.AuditLog) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newAuditlogsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasEntities applies the HasEdge predicate on the "entities" edge.
 func HasEntities() predicate.User {
 	return predicate.User(func(s *sql.Selector) {

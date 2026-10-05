@@ -66,13 +66,15 @@ type UserEdges struct {
 	Tasks []*Task `json:"tasks,omitempty"`
 	// Fsevents holds the value of the fsevents edge.
 	Fsevents []*FsEvent `json:"fsevents,omitempty"`
+	// Auditlogs holds the value of the auditlogs edge.
+	Auditlogs []*AuditLog `json:"auditlogs,omitempty"`
 	// Entities holds the value of the entities edge.
 	Entities []*Entity `json:"entities,omitempty"`
 	// OauthGrants holds the value of the oauth_grants edge.
 	OauthGrants []*OAuthGrant `json:"oauth_grants,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [9]bool
+	loadedTypes [10]bool
 }
 
 // GroupOrErr returns the Group value or an error if the edge
@@ -142,10 +144,19 @@ func (e UserEdges) FseventsOrErr() ([]*FsEvent, error) {
 	return nil, &NotLoadedError{edge: "fsevents"}
 }
 
+// AuditlogsOrErr returns the Auditlogs value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) AuditlogsOrErr() ([]*AuditLog, error) {
+	if e.loadedTypes[7] {
+		return e.Auditlogs, nil
+	}
+	return nil, &NotLoadedError{edge: "auditlogs"}
+}
+
 // EntitiesOrErr returns the Entities value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) EntitiesOrErr() ([]*Entity, error) {
-	if e.loadedTypes[7] {
+	if e.loadedTypes[8] {
 		return e.Entities, nil
 	}
 	return nil, &NotLoadedError{edge: "entities"}
@@ -154,7 +165,7 @@ func (e UserEdges) EntitiesOrErr() ([]*Entity, error) {
 // OauthGrantsOrErr returns the OauthGrants value or an error if the edge
 // was not loaded in eager-loading.
 func (e UserEdges) OauthGrantsOrErr() ([]*OAuthGrant, error) {
-	if e.loadedTypes[8] {
+	if e.loadedTypes[9] {
 		return e.OauthGrants, nil
 	}
 	return nil, &NotLoadedError{edge: "oauth_grants"}
@@ -317,6 +328,11 @@ func (u *User) QueryFsevents() *FsEventQuery {
 	return NewUserClient(u.config).QueryFsevents(u)
 }
 
+// QueryAuditlogs queries the "auditlogs" edge of the User entity.
+func (u *User) QueryAuditlogs() *AuditLogQuery {
+	return NewUserClient(u.config).QueryAuditlogs(u)
+}
+
 // QueryEntities queries the "entities" edge of the User entity.
 func (u *User) QueryEntities() *EntityQuery {
 	return NewUserClient(u.config).QueryEntities(u)
@@ -431,16 +447,22 @@ func (e *User) SetFsevents(v []*FsEvent) {
 	e.Edges.loadedTypes[6] = true
 }
 
+// SetAuditlogs manually set the edge as loaded state.
+func (e *User) SetAuditlogs(v []*AuditLog) {
+	e.Edges.Auditlogs = v
+	e.Edges.loadedTypes[7] = true
+}
+
 // SetEntities manually set the edge as loaded state.
 func (e *User) SetEntities(v []*Entity) {
 	e.Edges.Entities = v
-	e.Edges.loadedTypes[7] = true
+	e.Edges.loadedTypes[8] = true
 }
 
 // SetOauthGrants manually set the edge as loaded state.
 func (e *User) SetOauthGrants(v []*OAuthGrant) {
 	e.Edges.OauthGrants = v
-	e.Edges.loadedTypes[8] = true
+	e.Edges.loadedTypes[9] = true
 }
 
 // Users is a parsable slice of User.

@@ -238,6 +238,12 @@ func (service *CreateFileService) Create(c *gin.Context) (*FileResponse, error) 
 		return nil, err
 	}
 
+	if fileType == types.FileTypeFolder {
+		WriteAudit(c, "create.folder", "folder", uri.Name(), uri.String())
+	} else {
+		WriteAudit(c, "create.file", "file", uri.Name(), uri.String())
+	}
+
 	return BuildFileResponse(c, user, file, dep.HashIDEncoder(), nil), nil
 }
 
@@ -264,6 +270,8 @@ func (service *RenameFileService) Rename(c *gin.Context) (*FileResponse, error) 
 	if err != nil {
 		return nil, err
 	}
+
+	WriteAudit(c, "rename", "file", uri.Name(), uri.String()+" -> "+service.NewName)
 
 	return BuildFileResponse(c, user, file, dep.HashIDEncoder(), nil), nil
 }
@@ -554,6 +562,14 @@ func (s *DeleteFileService) Delete(c *gin.Context) error {
 	// Delete file
 	if err = m.Delete(c, uris, fs.WithUnlinkOnly(s.UnlinkOnly), fs.WithSkipSoftDelete(s.SkipSoftDelete)); err != nil {
 		return fmt.Errorf("failed to delete file: %w", err)
+	}
+
+	action := "delete.soft"
+	if s.SkipSoftDelete || s.UnlinkOnly {
+		action = "delete.hard"
+	}
+	for _, u := range uris {
+		WriteAudit(c, action, "file", u.Name(), u.String())
 	}
 
 	return nil

@@ -5,6 +5,8 @@ package runtime
 import (
 	"time"
 
+	"github.com/cloudreve/Cloudreve/v4/ent/abusereport"
+	"github.com/cloudreve/Cloudreve/v4/ent/auditlog"
 	"github.com/cloudreve/Cloudreve/v4/ent/davaccount"
 	"github.com/cloudreve/Cloudreve/v4/ent/directlink"
 	"github.com/cloudreve/Cloudreve/v4/ent/entity"
@@ -29,6 +31,82 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	abusereportMixin := schema.AbuseReport{}.Mixin()
+	abusereportMixinHooks0 := abusereportMixin[0].Hooks()
+	abusereport.Hooks[0] = abusereportMixinHooks0[0]
+	abusereportMixinInters0 := abusereportMixin[0].Interceptors()
+	abusereport.Interceptors[0] = abusereportMixinInters0[0]
+	abusereportMixinFields0 := abusereportMixin[0].Fields()
+	_ = abusereportMixinFields0
+	abusereportFields := schema.AbuseReport{}.Fields()
+	_ = abusereportFields
+	// abusereportDescCreatedAt is the schema descriptor for created_at field.
+	abusereportDescCreatedAt := abusereportMixinFields0[0].Descriptor()
+	// abusereport.DefaultCreatedAt holds the default value on creation for the created_at field.
+	abusereport.DefaultCreatedAt = abusereportDescCreatedAt.Default.(func() time.Time)
+	// abusereportDescUpdatedAt is the schema descriptor for updated_at field.
+	abusereportDescUpdatedAt := abusereportMixinFields0[1].Descriptor()
+	// abusereport.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	abusereport.DefaultUpdatedAt = abusereportDescUpdatedAt.Default.(func() time.Time)
+	// abusereport.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	abusereport.UpdateDefaultUpdatedAt = abusereportDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// abusereportDescShareURL is the schema descriptor for share_url field.
+	abusereportDescShareURL := abusereportFields[1].Descriptor()
+	// abusereport.ShareURLValidator is a validator for the "share_url" field. It is called by the builders before save.
+	abusereport.ShareURLValidator = abusereportDescShareURL.Validators[0].(func(string) error)
+	// abusereportDescReporterEmail is the schema descriptor for reporter_email field.
+	abusereportDescReporterEmail := abusereportFields[2].Descriptor()
+	// abusereport.ReporterEmailValidator is a validator for the "reporter_email" field. It is called by the builders before save.
+	abusereport.ReporterEmailValidator = abusereportDescReporterEmail.Validators[0].(func(string) error)
+	// abusereportDescIP is the schema descriptor for ip field.
+	abusereportDescIP := abusereportFields[3].Descriptor()
+	// abusereport.IPValidator is a validator for the "ip" field. It is called by the builders before save.
+	abusereport.IPValidator = abusereportDescIP.Validators[0].(func(string) error)
+	// abusereportDescStatus is the schema descriptor for status field.
+	abusereportDescStatus := abusereportFields[5].Descriptor()
+	// abusereport.DefaultStatus holds the default value on creation for the status field.
+	abusereport.DefaultStatus = abusereportDescStatus.Default.(string)
+	// abusereport.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	abusereport.StatusValidator = abusereportDescStatus.Validators[0].(func(string) error)
+	auditlogMixin := schema.AuditLog{}.Mixin()
+	auditlogMixinHooks0 := auditlogMixin[0].Hooks()
+	auditlog.Hooks[0] = auditlogMixinHooks0[0]
+	auditlogMixinInters0 := auditlogMixin[0].Interceptors()
+	auditlog.Interceptors[0] = auditlogMixinInters0[0]
+	auditlogMixinFields0 := auditlogMixin[0].Fields()
+	_ = auditlogMixinFields0
+	auditlogFields := schema.AuditLog{}.Fields()
+	_ = auditlogFields
+	// auditlogDescCreatedAt is the schema descriptor for created_at field.
+	auditlogDescCreatedAt := auditlogMixinFields0[0].Descriptor()
+	// auditlog.DefaultCreatedAt holds the default value on creation for the created_at field.
+	auditlog.DefaultCreatedAt = auditlogDescCreatedAt.Default.(func() time.Time)
+	// auditlogDescUpdatedAt is the schema descriptor for updated_at field.
+	auditlogDescUpdatedAt := auditlogMixinFields0[1].Descriptor()
+	// auditlog.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	auditlog.DefaultUpdatedAt = auditlogDescUpdatedAt.Default.(func() time.Time)
+	// auditlog.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	auditlog.UpdateDefaultUpdatedAt = auditlogDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// auditlogDescUserEmail is the schema descriptor for user_email field.
+	auditlogDescUserEmail := auditlogFields[1].Descriptor()
+	// auditlog.UserEmailValidator is a validator for the "user_email" field. It is called by the builders before save.
+	auditlog.UserEmailValidator = auditlogDescUserEmail.Validators[0].(func(string) error)
+	// auditlogDescAction is the schema descriptor for action field.
+	auditlogDescAction := auditlogFields[2].Descriptor()
+	// auditlog.ActionValidator is a validator for the "action" field. It is called by the builders before save.
+	auditlog.ActionValidator = auditlogDescAction.Validators[0].(func(string) error)
+	// auditlogDescObjectType is the schema descriptor for object_type field.
+	auditlogDescObjectType := auditlogFields[3].Descriptor()
+	// auditlog.ObjectTypeValidator is a validator for the "object_type" field. It is called by the builders before save.
+	auditlog.ObjectTypeValidator = auditlogDescObjectType.Validators[0].(func(string) error)
+	// auditlogDescObjectName is the schema descriptor for object_name field.
+	auditlogDescObjectName := auditlogFields[4].Descriptor()
+	// auditlog.ObjectNameValidator is a validator for the "object_name" field. It is called by the builders before save.
+	auditlog.ObjectNameValidator = auditlogDescObjectName.Validators[0].(func(string) error)
+	// auditlogDescIP is the schema descriptor for ip field.
+	auditlogDescIP := auditlogFields[6].Descriptor()
+	// auditlog.IPValidator is a validator for the "ip" field. It is called by the builders before save.
+	auditlog.IPValidator = auditlogDescIP.Validators[0].(func(string) error)
 	davaccountMixin := schema.DavAccount{}.Mixin()
 	davaccountMixinHooks0 := davaccountMixin[0].Hooks()
 	davaccount.Hooks[0] = davaccountMixinHooks0[0]
