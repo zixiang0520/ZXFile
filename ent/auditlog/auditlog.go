@@ -25,6 +25,8 @@ const (
 	FieldUserID = "user_id"
 	// FieldUserEmail holds the string denoting the user_email field in the database.
 	FieldUserEmail = "user_email"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// FieldAction holds the string denoting the action field in the database.
 	FieldAction = "action"
 	// FieldObjectType holds the string denoting the object_type field in the database.
@@ -33,8 +35,12 @@ const (
 	FieldObjectName = "object_name"
 	// FieldDetail holds the string denoting the detail field in the database.
 	FieldDetail = "detail"
+	// FieldContent holds the string denoting the content field in the database.
+	FieldContent = "content"
 	// FieldIP holds the string denoting the ip field in the database.
 	FieldIP = "ip"
+	// FieldCorrelationID holds the string denoting the correlation_id field in the database.
+	FieldCorrelationID = "correlation_id"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the auditlog in the database.
@@ -56,11 +62,14 @@ var Columns = []string{
 	FieldDeletedAt,
 	FieldUserID,
 	FieldUserEmail,
+	FieldType,
 	FieldAction,
 	FieldObjectType,
 	FieldObjectName,
 	FieldDetail,
+	FieldContent,
 	FieldIP,
+	FieldCorrelationID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -89,6 +98,8 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// UserEmailValidator is a validator for the "user_email" field. It is called by the builders before save.
 	UserEmailValidator func(string) error
+	// DefaultType holds the default value on creation for the "type" field.
+	DefaultType int
 	// ActionValidator is a validator for the "action" field. It is called by the builders before save.
 	ActionValidator func(string) error
 	// ObjectTypeValidator is a validator for the "object_type" field. It is called by the builders before save.
@@ -97,6 +108,8 @@ var (
 	ObjectNameValidator func(string) error
 	// IPValidator is a validator for the "ip" field. It is called by the builders before save.
 	IPValidator func(string) error
+	// CorrelationIDValidator is a validator for the "correlation_id" field. It is called by the builders before save.
+	CorrelationIDValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the AuditLog queries.
@@ -132,6 +145,11 @@ func ByUserEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserEmail, opts...).ToFunc()
 }
 
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
+}
+
 // ByAction orders the results by the action field.
 func ByAction(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAction, opts...).ToFunc()
@@ -155,6 +173,11 @@ func ByDetail(opts ...sql.OrderTermOption) OrderOption {
 // ByIP orders the results by the ip field.
 func ByIP(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIP, opts...).ToFunc()
+}
+
+// ByCorrelationID orders the results by the correlation_id field.
+func ByCorrelationID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCorrelationID, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

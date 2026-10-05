@@ -12,6 +12,7 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/inventory/types"
 	"github.com/cloudreve/Cloudreve/v4/pkg/auth"
 	"github.com/cloudreve/Cloudreve/v4/pkg/cluster/routes"
+	"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/fs"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/fs/dbfs"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/manager"
@@ -238,10 +239,11 @@ func (service *CreateFileService) Create(c *gin.Context) (*FileResponse, error) 
 		return nil, err
 	}
 
+	content := map[string]interface{}{"uri": uri.String()}
 	if fileType == types.FileTypeFolder {
-		WriteAudit(c, "create.folder", "folder", uri.Name(), uri.String())
+		WriteAudit(c, eventtype.FileCreate, "folder", uri.Name(), content)
 	} else {
-		WriteAudit(c, "create.file", "file", uri.Name(), uri.String())
+		WriteAudit(c, eventtype.FileCreate, "file", uri.Name(), content)
 	}
 
 	return BuildFileResponse(c, user, file, dep.HashIDEncoder(), nil), nil
@@ -271,7 +273,9 @@ func (service *RenameFileService) Rename(c *gin.Context) (*FileResponse, error) 
 		return nil, err
 	}
 
-	WriteAudit(c, "rename", "file", uri.Name(), uri.String()+" -> "+service.NewName)
+	WriteAudit(c, eventtype.FileRename, "file", uri.Name(), map[string]interface{}{
+		"uri": uri.String(), "from": uri.Name(), "to": service.NewName,
+	})
 
 	return BuildFileResponse(c, user, file, dep.HashIDEncoder(), nil), nil
 }
@@ -564,12 +568,12 @@ func (s *DeleteFileService) Delete(c *gin.Context) error {
 		return fmt.Errorf("failed to delete file: %w", err)
 	}
 
-	action := "delete.soft"
+	action := eventtype.MoveToTrash
 	if s.SkipSoftDelete || s.UnlinkOnly {
-		action = "delete.hard"
+		action = eventtype.DeleteFile
 	}
 	for _, u := range uris {
-		WriteAudit(c, action, "file", u.Name(), u.String())
+		WriteAudit(c, action, "file", u.Name(), map[string]interface{}{"uri": u.String()})
 	}
 
 	return nil

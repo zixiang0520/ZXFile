@@ -718,3 +718,34 @@ func AdminAbuseDelete(c *gin.Context) {
 	}
 	c.JSON(200, serializer.Response{})
 }
+
+// AdminGetAudit returns a single audit event
+func AdminGetAudit(c *gin.Context) {
+	service := ParametersFromContext[*admin.SingleAuditService](c, admin.SingleAuditParamCtx{})
+	res, err := service.Get(c)
+	if err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{Data: res})
+}
+
+// AdminAuditBatchDelete batch deletes audit events
+func AdminAuditBatchDelete(c *gin.Context) {
+	service := ParametersFromContext[*admin.AuditBatchDeleteService](c, admin.AuditBatchDeleteParamCtx{})
+	if err := service.BatchDelete(c); err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{})
+}
+
+// AdminAuditCleanup cleans up old audit events
+func AdminAuditCleanup(c *gin.Context) {
+	service := ParametersFromContext[*admin.AuditCleanupService](c, admin.AuditCleanupParamCtx{})
+	if err := service.Cleanup(c); err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{})
+}

@@ -18,11 +18,14 @@ func (AuditLog) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("user_id").Optional(),
 		field.String("user_email").Optional().MaxLen(255),
+		field.Int("type").Default(0),
 		field.String("action").MaxLen(64),
 		field.String("object_type").Optional().MaxLen(32),
 		field.String("object_name").Optional().MaxLen(1024),
 		field.String("detail").Optional(),
+		field.JSON("content", map[string]interface{}{}).Optional(),
 		field.String("ip").Optional().MaxLen(64),
+		field.String("correlation_id").Optional().MaxLen(64),
 	}
 }
 

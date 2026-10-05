@@ -12,6 +12,7 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/inventory/types"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/fs"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/manager"
+	"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
 	"github.com/cloudreve/Cloudreve/v4/pkg/hashid"
 	"github.com/cloudreve/Cloudreve/v4/pkg/serializer"
 	"github.com/cloudreve/Cloudreve/v4/service/explorer"
@@ -105,7 +106,7 @@ func (service *ShareCreateService) Upsert(c *gin.Context, existed int) (string, 
 	if share.Edges.File != nil {
 		shareName = share.Edges.File.Name
 	}
-	explorer.WriteAudit(c, "share.create", "share", shareName, "")
+	explorer.WriteAudit(c, eventtype.Share, "share", shareName, nil)
 	return explorer.BuildShareLink(share, dep.HashIDEncoder(), base, true), nil
 }
 
@@ -203,6 +204,6 @@ func DeleteShare(c *gin.Context, shareId int) error {
 	if share.Edges.File != nil {
 		shareName = share.Edges.File.Name
 	}
-	explorer.WriteAudit(c, "share.delete", "share", shareName, "")
+	explorer.WriteAudit(c, eventtype.DeleteShare, "share", shareName, nil)
 	return nil
 }

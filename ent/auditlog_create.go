@@ -93,6 +93,20 @@ func (alc *AuditLogCreate) SetNillableUserEmail(s *string) *AuditLogCreate {
 	return alc
 }
 
+// SetType sets the "type" field.
+func (alc *AuditLogCreate) SetType(i int) *AuditLogCreate {
+	alc.mutation.SetType(i)
+	return alc
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (alc *AuditLogCreate) SetNillableType(i *int) *AuditLogCreate {
+	if i != nil {
+		alc.SetType(*i)
+	}
+	return alc
+}
+
 // SetAction sets the "action" field.
 func (alc *AuditLogCreate) SetAction(s string) *AuditLogCreate {
 	alc.mutation.SetAction(s)
@@ -141,6 +155,12 @@ func (alc *AuditLogCreate) SetNillableDetail(s *string) *AuditLogCreate {
 	return alc
 }
 
+// SetContent sets the "content" field.
+func (alc *AuditLogCreate) SetContent(m map[string]interface{}) *AuditLogCreate {
+	alc.mutation.SetContent(m)
+	return alc
+}
+
 // SetIP sets the "ip" field.
 func (alc *AuditLogCreate) SetIP(s string) *AuditLogCreate {
 	alc.mutation.SetIP(s)
@@ -151,6 +171,20 @@ func (alc *AuditLogCreate) SetIP(s string) *AuditLogCreate {
 func (alc *AuditLogCreate) SetNillableIP(s *string) *AuditLogCreate {
 	if s != nil {
 		alc.SetIP(*s)
+	}
+	return alc
+}
+
+// SetCorrelationID sets the "correlation_id" field.
+func (alc *AuditLogCreate) SetCorrelationID(s string) *AuditLogCreate {
+	alc.mutation.SetCorrelationID(s)
+	return alc
+}
+
+// SetNillableCorrelationID sets the "correlation_id" field if the given value is not nil.
+func (alc *AuditLogCreate) SetNillableCorrelationID(s *string) *AuditLogCreate {
+	if s != nil {
+		alc.SetCorrelationID(*s)
 	}
 	return alc
 }
@@ -211,6 +245,10 @@ func (alc *AuditLogCreate) defaults() error {
 		v := auditlog.DefaultUpdatedAt()
 		alc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := alc.mutation.GetType(); !ok {
+		v := auditlog.DefaultType
+		alc.mutation.SetType(v)
+	}
 	return nil
 }
 
@@ -226,6 +264,9 @@ func (alc *AuditLogCreate) check() error {
 		if err := auditlog.UserEmailValidator(v); err != nil {
 			return &ValidationError{Name: "user_email", err: fmt.Errorf(`ent: validator failed for field "AuditLog.user_email": %w`, err)}
 		}
+	}
+	if _, ok := alc.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "AuditLog.type"`)}
 	}
 	if _, ok := alc.mutation.Action(); !ok {
 		return &ValidationError{Name: "action", err: errors.New(`ent: missing required field "AuditLog.action"`)}
@@ -248,6 +289,11 @@ func (alc *AuditLogCreate) check() error {
 	if v, ok := alc.mutation.IP(); ok {
 		if err := auditlog.IPValidator(v); err != nil {
 			return &ValidationError{Name: "ip", err: fmt.Errorf(`ent: validator failed for field "AuditLog.ip": %w`, err)}
+		}
+	}
+	if v, ok := alc.mutation.CorrelationID(); ok {
+		if err := auditlog.CorrelationIDValidator(v); err != nil {
+			return &ValidationError{Name: "correlation_id", err: fmt.Errorf(`ent: validator failed for field "AuditLog.correlation_id": %w`, err)}
 		}
 	}
 	return nil
@@ -300,6 +346,10 @@ func (alc *AuditLogCreate) createSpec() (*AuditLog, *sqlgraph.CreateSpec) {
 		_spec.SetField(auditlog.FieldUserEmail, field.TypeString, value)
 		_node.UserEmail = value
 	}
+	if value, ok := alc.mutation.GetType(); ok {
+		_spec.SetField(auditlog.FieldType, field.TypeInt, value)
+		_node.Type = value
+	}
 	if value, ok := alc.mutation.Action(); ok {
 		_spec.SetField(auditlog.FieldAction, field.TypeString, value)
 		_node.Action = value
@@ -316,9 +366,17 @@ func (alc *AuditLogCreate) createSpec() (*AuditLog, *sqlgraph.CreateSpec) {
 		_spec.SetField(auditlog.FieldDetail, field.TypeString, value)
 		_node.Detail = value
 	}
+	if value, ok := alc.mutation.Content(); ok {
+		_spec.SetField(auditlog.FieldContent, field.TypeJSON, value)
+		_node.Content = value
+	}
 	if value, ok := alc.mutation.IP(); ok {
 		_spec.SetField(auditlog.FieldIP, field.TypeString, value)
 		_node.IP = value
+	}
+	if value, ok := alc.mutation.CorrelationID(); ok {
+		_spec.SetField(auditlog.FieldCorrelationID, field.TypeString, value)
+		_node.CorrelationID = value
 	}
 	if nodes := alc.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -455,6 +513,24 @@ func (u *AuditLogUpsert) ClearUserEmail() *AuditLogUpsert {
 	return u
 }
 
+// SetType sets the "type" field.
+func (u *AuditLogUpsert) SetType(v int) *AuditLogUpsert {
+	u.Set(auditlog.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *AuditLogUpsert) UpdateType() *AuditLogUpsert {
+	u.SetExcluded(auditlog.FieldType)
+	return u
+}
+
+// AddType adds v to the "type" field.
+func (u *AuditLogUpsert) AddType(v int) *AuditLogUpsert {
+	u.Add(auditlog.FieldType, v)
+	return u
+}
+
 // SetAction sets the "action" field.
 func (u *AuditLogUpsert) SetAction(v string) *AuditLogUpsert {
 	u.Set(auditlog.FieldAction, v)
@@ -521,6 +597,24 @@ func (u *AuditLogUpsert) ClearDetail() *AuditLogUpsert {
 	return u
 }
 
+// SetContent sets the "content" field.
+func (u *AuditLogUpsert) SetContent(v map[string]interface{}) *AuditLogUpsert {
+	u.Set(auditlog.FieldContent, v)
+	return u
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *AuditLogUpsert) UpdateContent() *AuditLogUpsert {
+	u.SetExcluded(auditlog.FieldContent)
+	return u
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *AuditLogUpsert) ClearContent() *AuditLogUpsert {
+	u.SetNull(auditlog.FieldContent)
+	return u
+}
+
 // SetIP sets the "ip" field.
 func (u *AuditLogUpsert) SetIP(v string) *AuditLogUpsert {
 	u.Set(auditlog.FieldIP, v)
@@ -536,6 +630,24 @@ func (u *AuditLogUpsert) UpdateIP() *AuditLogUpsert {
 // ClearIP clears the value of the "ip" field.
 func (u *AuditLogUpsert) ClearIP() *AuditLogUpsert {
 	u.SetNull(auditlog.FieldIP)
+	return u
+}
+
+// SetCorrelationID sets the "correlation_id" field.
+func (u *AuditLogUpsert) SetCorrelationID(v string) *AuditLogUpsert {
+	u.Set(auditlog.FieldCorrelationID, v)
+	return u
+}
+
+// UpdateCorrelationID sets the "correlation_id" field to the value that was provided on create.
+func (u *AuditLogUpsert) UpdateCorrelationID() *AuditLogUpsert {
+	u.SetExcluded(auditlog.FieldCorrelationID)
+	return u
+}
+
+// ClearCorrelationID clears the value of the "correlation_id" field.
+func (u *AuditLogUpsert) ClearCorrelationID() *AuditLogUpsert {
+	u.SetNull(auditlog.FieldCorrelationID)
 	return u
 }
 
@@ -661,6 +773,27 @@ func (u *AuditLogUpsertOne) ClearUserEmail() *AuditLogUpsertOne {
 	})
 }
 
+// SetType sets the "type" field.
+func (u *AuditLogUpsertOne) SetType(v int) *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.SetType(v)
+	})
+}
+
+// AddType adds v to the "type" field.
+func (u *AuditLogUpsertOne) AddType(v int) *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.AddType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *AuditLogUpsertOne) UpdateType() *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.UpdateType()
+	})
+}
+
 // SetAction sets the "action" field.
 func (u *AuditLogUpsertOne) SetAction(v string) *AuditLogUpsertOne {
 	return u.Update(func(s *AuditLogUpsert) {
@@ -738,6 +871,27 @@ func (u *AuditLogUpsertOne) ClearDetail() *AuditLogUpsertOne {
 	})
 }
 
+// SetContent sets the "content" field.
+func (u *AuditLogUpsertOne) SetContent(v map[string]interface{}) *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.SetContent(v)
+	})
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *AuditLogUpsertOne) UpdateContent() *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.UpdateContent()
+	})
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *AuditLogUpsertOne) ClearContent() *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.ClearContent()
+	})
+}
+
 // SetIP sets the "ip" field.
 func (u *AuditLogUpsertOne) SetIP(v string) *AuditLogUpsertOne {
 	return u.Update(func(s *AuditLogUpsert) {
@@ -756,6 +910,27 @@ func (u *AuditLogUpsertOne) UpdateIP() *AuditLogUpsertOne {
 func (u *AuditLogUpsertOne) ClearIP() *AuditLogUpsertOne {
 	return u.Update(func(s *AuditLogUpsert) {
 		s.ClearIP()
+	})
+}
+
+// SetCorrelationID sets the "correlation_id" field.
+func (u *AuditLogUpsertOne) SetCorrelationID(v string) *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.SetCorrelationID(v)
+	})
+}
+
+// UpdateCorrelationID sets the "correlation_id" field to the value that was provided on create.
+func (u *AuditLogUpsertOne) UpdateCorrelationID() *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.UpdateCorrelationID()
+	})
+}
+
+// ClearCorrelationID clears the value of the "correlation_id" field.
+func (u *AuditLogUpsertOne) ClearCorrelationID() *AuditLogUpsertOne {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.ClearCorrelationID()
 	})
 }
 
@@ -1052,6 +1227,27 @@ func (u *AuditLogUpsertBulk) ClearUserEmail() *AuditLogUpsertBulk {
 	})
 }
 
+// SetType sets the "type" field.
+func (u *AuditLogUpsertBulk) SetType(v int) *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.SetType(v)
+	})
+}
+
+// AddType adds v to the "type" field.
+func (u *AuditLogUpsertBulk) AddType(v int) *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.AddType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *AuditLogUpsertBulk) UpdateType() *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.UpdateType()
+	})
+}
+
 // SetAction sets the "action" field.
 func (u *AuditLogUpsertBulk) SetAction(v string) *AuditLogUpsertBulk {
 	return u.Update(func(s *AuditLogUpsert) {
@@ -1129,6 +1325,27 @@ func (u *AuditLogUpsertBulk) ClearDetail() *AuditLogUpsertBulk {
 	})
 }
 
+// SetContent sets the "content" field.
+func (u *AuditLogUpsertBulk) SetContent(v map[string]interface{}) *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.SetContent(v)
+	})
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *AuditLogUpsertBulk) UpdateContent() *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.UpdateContent()
+	})
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *AuditLogUpsertBulk) ClearContent() *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.ClearContent()
+	})
+}
+
 // SetIP sets the "ip" field.
 func (u *AuditLogUpsertBulk) SetIP(v string) *AuditLogUpsertBulk {
 	return u.Update(func(s *AuditLogUpsert) {
@@ -1147,6 +1364,27 @@ func (u *AuditLogUpsertBulk) UpdateIP() *AuditLogUpsertBulk {
 func (u *AuditLogUpsertBulk) ClearIP() *AuditLogUpsertBulk {
 	return u.Update(func(s *AuditLogUpsert) {
 		s.ClearIP()
+	})
+}
+
+// SetCorrelationID sets the "correlation_id" field.
+func (u *AuditLogUpsertBulk) SetCorrelationID(v string) *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.SetCorrelationID(v)
+	})
+}
+
+// UpdateCorrelationID sets the "correlation_id" field to the value that was provided on create.
+func (u *AuditLogUpsertBulk) UpdateCorrelationID() *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.UpdateCorrelationID()
+	})
+}
+
+// ClearCorrelationID clears the value of the "correlation_id" field.
+func (u *AuditLogUpsertBulk) ClearCorrelationID() *AuditLogUpsertBulk {
+	return u.Update(func(s *AuditLogUpsert) {
+		s.ClearCorrelationID()
 	})
 }
 

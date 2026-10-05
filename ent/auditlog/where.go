@@ -80,6 +80,11 @@ func UserEmail(v string) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldEQ(FieldUserEmail, v))
 }
 
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldEQ(FieldType, v))
+}
+
 // Action applies equality check predicate on the "action" field. It's identical to ActionEQ.
 func Action(v string) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldEQ(FieldAction, v))
@@ -103,6 +108,11 @@ func Detail(v string) predicate.AuditLog {
 // IP applies equality check predicate on the "ip" field. It's identical to IPEQ.
 func IP(v string) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldEQ(FieldIP, v))
+}
+
+// CorrelationID applies equality check predicate on the "correlation_id" field. It's identical to CorrelationIDEQ.
+func CorrelationID(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldEQ(FieldCorrelationID, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
@@ -338,6 +348,46 @@ func UserEmailEqualFold(v string) predicate.AuditLog {
 // UserEmailContainsFold applies the ContainsFold predicate on the "user_email" field.
 func UserEmailContainsFold(v string) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldContainsFold(FieldUserEmail, v))
+}
+
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldEQ(FieldType, v))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNEQ(FieldType, v))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldIn(FieldType, vs...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNotIn(FieldType, vs...))
+}
+
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldGT(FieldType, v))
+}
+
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldGTE(FieldType, v))
+}
+
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldLT(FieldType, v))
+}
+
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v int) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldLTE(FieldType, v))
 }
 
 // ActionEQ applies the EQ predicate on the "action" field.
@@ -630,6 +680,16 @@ func DetailContainsFold(v string) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldContainsFold(FieldDetail, v))
 }
 
+// ContentIsNil applies the IsNil predicate on the "content" field.
+func ContentIsNil() predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldIsNull(FieldContent))
+}
+
+// ContentNotNil applies the NotNil predicate on the "content" field.
+func ContentNotNil() predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNotNull(FieldContent))
+}
+
 // IPEQ applies the EQ predicate on the "ip" field.
 func IPEQ(v string) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldEQ(FieldIP, v))
@@ -703,6 +763,81 @@ func IPEqualFold(v string) predicate.AuditLog {
 // IPContainsFold applies the ContainsFold predicate on the "ip" field.
 func IPContainsFold(v string) predicate.AuditLog {
 	return predicate.AuditLog(sql.FieldContainsFold(FieldIP, v))
+}
+
+// CorrelationIDEQ applies the EQ predicate on the "correlation_id" field.
+func CorrelationIDEQ(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldEQ(FieldCorrelationID, v))
+}
+
+// CorrelationIDNEQ applies the NEQ predicate on the "correlation_id" field.
+func CorrelationIDNEQ(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNEQ(FieldCorrelationID, v))
+}
+
+// CorrelationIDIn applies the In predicate on the "correlation_id" field.
+func CorrelationIDIn(vs ...string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldIn(FieldCorrelationID, vs...))
+}
+
+// CorrelationIDNotIn applies the NotIn predicate on the "correlation_id" field.
+func CorrelationIDNotIn(vs ...string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNotIn(FieldCorrelationID, vs...))
+}
+
+// CorrelationIDGT applies the GT predicate on the "correlation_id" field.
+func CorrelationIDGT(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldGT(FieldCorrelationID, v))
+}
+
+// CorrelationIDGTE applies the GTE predicate on the "correlation_id" field.
+func CorrelationIDGTE(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldGTE(FieldCorrelationID, v))
+}
+
+// CorrelationIDLT applies the LT predicate on the "correlation_id" field.
+func CorrelationIDLT(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldLT(FieldCorrelationID, v))
+}
+
+// CorrelationIDLTE applies the LTE predicate on the "correlation_id" field.
+func CorrelationIDLTE(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldLTE(FieldCorrelationID, v))
+}
+
+// CorrelationIDContains applies the Contains predicate on the "correlation_id" field.
+func CorrelationIDContains(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldContains(FieldCorrelationID, v))
+}
+
+// CorrelationIDHasPrefix applies the HasPrefix predicate on the "correlation_id" field.
+func CorrelationIDHasPrefix(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldHasPrefix(FieldCorrelationID, v))
+}
+
+// CorrelationIDHasSuffix applies the HasSuffix predicate on the "correlation_id" field.
+func CorrelationIDHasSuffix(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldHasSuffix(FieldCorrelationID, v))
+}
+
+// CorrelationIDIsNil applies the IsNil predicate on the "correlation_id" field.
+func CorrelationIDIsNil() predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldIsNull(FieldCorrelationID))
+}
+
+// CorrelationIDNotNil applies the NotNil predicate on the "correlation_id" field.
+func CorrelationIDNotNil() predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldNotNull(FieldCorrelationID))
+}
+
+// CorrelationIDEqualFold applies the EqualFold predicate on the "correlation_id" field.
+func CorrelationIDEqualFold(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldEqualFold(FieldCorrelationID, v))
+}
+
+// CorrelationIDContainsFold applies the ContainsFold predicate on the "correlation_id" field.
+func CorrelationIDContainsFold(v string) predicate.AuditLog {
+	return predicate.AuditLog(sql.FieldContainsFold(FieldCorrelationID, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

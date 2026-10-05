@@ -91,22 +91,30 @@ func init() {
 	auditlogDescUserEmail := auditlogFields[1].Descriptor()
 	// auditlog.UserEmailValidator is a validator for the "user_email" field. It is called by the builders before save.
 	auditlog.UserEmailValidator = auditlogDescUserEmail.Validators[0].(func(string) error)
+	// auditlogDescType is the schema descriptor for type field.
+	auditlogDescType := auditlogFields[2].Descriptor()
+	// auditlog.DefaultType holds the default value on creation for the type field.
+	auditlog.DefaultType = auditlogDescType.Default.(int)
 	// auditlogDescAction is the schema descriptor for action field.
-	auditlogDescAction := auditlogFields[2].Descriptor()
+	auditlogDescAction := auditlogFields[3].Descriptor()
 	// auditlog.ActionValidator is a validator for the "action" field. It is called by the builders before save.
 	auditlog.ActionValidator = auditlogDescAction.Validators[0].(func(string) error)
 	// auditlogDescObjectType is the schema descriptor for object_type field.
-	auditlogDescObjectType := auditlogFields[3].Descriptor()
+	auditlogDescObjectType := auditlogFields[4].Descriptor()
 	// auditlog.ObjectTypeValidator is a validator for the "object_type" field. It is called by the builders before save.
 	auditlog.ObjectTypeValidator = auditlogDescObjectType.Validators[0].(func(string) error)
 	// auditlogDescObjectName is the schema descriptor for object_name field.
-	auditlogDescObjectName := auditlogFields[4].Descriptor()
+	auditlogDescObjectName := auditlogFields[5].Descriptor()
 	// auditlog.ObjectNameValidator is a validator for the "object_name" field. It is called by the builders before save.
 	auditlog.ObjectNameValidator = auditlogDescObjectName.Validators[0].(func(string) error)
 	// auditlogDescIP is the schema descriptor for ip field.
-	auditlogDescIP := auditlogFields[6].Descriptor()
+	auditlogDescIP := auditlogFields[8].Descriptor()
 	// auditlog.IPValidator is a validator for the "ip" field. It is called by the builders before save.
 	auditlog.IPValidator = auditlogDescIP.Validators[0].(func(string) error)
+	// auditlogDescCorrelationID is the schema descriptor for correlation_id field.
+	auditlogDescCorrelationID := auditlogFields[9].Descriptor()
+	// auditlog.CorrelationIDValidator is a validator for the "correlation_id" field. It is called by the builders before save.
+	auditlog.CorrelationIDValidator = auditlogDescCorrelationID.Validators[0].(func(string) error)
 	davaccountMixin := schema.DavAccount{}.Mixin()
 	davaccountMixinHooks0 := davaccountMixin[0].Hooks()
 	davaccount.Hooks[0] = davaccountMixinHooks0[0]

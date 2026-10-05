@@ -254,6 +254,11 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 				controllers.AnonymousPermLink(true))
 		}
 
+		// Submit an abuse report (Pro-compatible /site/abuse, anonymous allowed)
+		v4.POST("site/abuse",
+			controllers.FromJSON[sharesvc.AbuseReportSubmitService](sharesvc.AbuseReportSubmitParamCtx{}),
+			controllers.SubmitAbuseReport,
+		)
 		// Submit an abuse report for a share (anonymous allowed)
 		v4.POST("s/report",
 			controllers.FromJSON[sharesvc.AbuseReportSubmitService](sharesvc.AbuseReportSubmitParamCtx{}),
@@ -906,6 +911,28 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 					controllers.FromJSON[adminsvc.AuditListService](adminsvc.AuditListParamCtx{}),
 					controllers.AdminAuditList,
 				)
+				// Audit events (Pro-compatible /admin/event family)
+				event := admin.Group("event")
+				{
+					event.POST("",
+						controllers.FromJSON[adminsvc.AuditListService](adminsvc.AuditListParamCtx{}),
+						controllers.AdminAuditList,
+					)
+					event.GET(":id",
+						controllers.FromUri[adminsvc.SingleAuditService](adminsvc.SingleAuditParamCtx{}),
+						controllers.AdminGetAudit,
+					)
+					event.POST("batch/delete",
+						middleware.RequiredScopes(types.ScopeAdminWrite),
+						controllers.FromJSON[adminsvc.AuditBatchDeleteService](adminsvc.AuditBatchDeleteParamCtx{}),
+						controllers.AdminAuditBatchDelete,
+					)
+					event.POST("cleanup",
+						middleware.RequiredScopes(types.ScopeAdminWrite),
+						controllers.FromJSON[adminsvc.AuditCleanupService](adminsvc.AuditCleanupParamCtx{}),
+						controllers.AdminAuditCleanup,
+					)
+				}
 				// Abuse reports (Pro feature reimplemented)
 				abuse := admin.Group("abuse")
 				{

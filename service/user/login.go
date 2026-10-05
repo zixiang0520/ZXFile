@@ -8,6 +8,7 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/ent"
 	"github.com/cloudreve/Cloudreve/v4/ent/user"
 	"github.com/cloudreve/Cloudreve/v4/inventory"
+	"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
 	"github.com/cloudreve/Cloudreve/v4/pkg/auth"
 	"github.com/cloudreve/Cloudreve/v4/pkg/cluster/routes"
 	"github.com/cloudreve/Cloudreve/v4/pkg/email"
@@ -140,8 +141,11 @@ func (service *UserLoginService) Login(c *gin.Context) (*ent.User, string, error
 	}
 
 	if err != nil {
+		WriteAuthAudit(c, eventtype.UserLoginFailed, service.UserName, err)
 		return nil, "", err
 	}
+
+	WriteAuthAudit(c, eventtype.UserLogin, expectedUser.Email, nil)
 
 	if expectedUser.TwoFactorSecret != "" {
 		twoFaSessionID := uuid.Must(uuid.NewV4())

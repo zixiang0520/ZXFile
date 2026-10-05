@@ -95,6 +95,27 @@ func (alu *AuditLogUpdate) ClearUserEmail() *AuditLogUpdate {
 	return alu
 }
 
+// SetType sets the "type" field.
+func (alu *AuditLogUpdate) SetType(i int) *AuditLogUpdate {
+	alu.mutation.ResetType()
+	alu.mutation.SetType(i)
+	return alu
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (alu *AuditLogUpdate) SetNillableType(i *int) *AuditLogUpdate {
+	if i != nil {
+		alu.SetType(*i)
+	}
+	return alu
+}
+
+// AddType adds i to the "type" field.
+func (alu *AuditLogUpdate) AddType(i int) *AuditLogUpdate {
+	alu.mutation.AddType(i)
+	return alu
+}
+
 // SetAction sets the "action" field.
 func (alu *AuditLogUpdate) SetAction(s string) *AuditLogUpdate {
 	alu.mutation.SetAction(s)
@@ -169,6 +190,18 @@ func (alu *AuditLogUpdate) ClearDetail() *AuditLogUpdate {
 	return alu
 }
 
+// SetContent sets the "content" field.
+func (alu *AuditLogUpdate) SetContent(m map[string]interface{}) *AuditLogUpdate {
+	alu.mutation.SetContent(m)
+	return alu
+}
+
+// ClearContent clears the value of the "content" field.
+func (alu *AuditLogUpdate) ClearContent() *AuditLogUpdate {
+	alu.mutation.ClearContent()
+	return alu
+}
+
 // SetIP sets the "ip" field.
 func (alu *AuditLogUpdate) SetIP(s string) *AuditLogUpdate {
 	alu.mutation.SetIP(s)
@@ -186,6 +219,26 @@ func (alu *AuditLogUpdate) SetNillableIP(s *string) *AuditLogUpdate {
 // ClearIP clears the value of the "ip" field.
 func (alu *AuditLogUpdate) ClearIP() *AuditLogUpdate {
 	alu.mutation.ClearIP()
+	return alu
+}
+
+// SetCorrelationID sets the "correlation_id" field.
+func (alu *AuditLogUpdate) SetCorrelationID(s string) *AuditLogUpdate {
+	alu.mutation.SetCorrelationID(s)
+	return alu
+}
+
+// SetNillableCorrelationID sets the "correlation_id" field if the given value is not nil.
+func (alu *AuditLogUpdate) SetNillableCorrelationID(s *string) *AuditLogUpdate {
+	if s != nil {
+		alu.SetCorrelationID(*s)
+	}
+	return alu
+}
+
+// ClearCorrelationID clears the value of the "correlation_id" field.
+func (alu *AuditLogUpdate) ClearCorrelationID() *AuditLogUpdate {
+	alu.mutation.ClearCorrelationID()
 	return alu
 }
 
@@ -274,6 +327,11 @@ func (alu *AuditLogUpdate) check() error {
 			return &ValidationError{Name: "ip", err: fmt.Errorf(`ent: validator failed for field "AuditLog.ip": %w`, err)}
 		}
 	}
+	if v, ok := alu.mutation.CorrelationID(); ok {
+		if err := auditlog.CorrelationIDValidator(v); err != nil {
+			return &ValidationError{Name: "correlation_id", err: fmt.Errorf(`ent: validator failed for field "AuditLog.correlation_id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -304,6 +362,12 @@ func (alu *AuditLogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if alu.mutation.UserEmailCleared() {
 		_spec.ClearField(auditlog.FieldUserEmail, field.TypeString)
 	}
+	if value, ok := alu.mutation.GetType(); ok {
+		_spec.SetField(auditlog.FieldType, field.TypeInt, value)
+	}
+	if value, ok := alu.mutation.AddedType(); ok {
+		_spec.AddField(auditlog.FieldType, field.TypeInt, value)
+	}
 	if value, ok := alu.mutation.Action(); ok {
 		_spec.SetField(auditlog.FieldAction, field.TypeString, value)
 	}
@@ -325,11 +389,23 @@ func (alu *AuditLogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if alu.mutation.DetailCleared() {
 		_spec.ClearField(auditlog.FieldDetail, field.TypeString)
 	}
+	if value, ok := alu.mutation.Content(); ok {
+		_spec.SetField(auditlog.FieldContent, field.TypeJSON, value)
+	}
+	if alu.mutation.ContentCleared() {
+		_spec.ClearField(auditlog.FieldContent, field.TypeJSON)
+	}
 	if value, ok := alu.mutation.IP(); ok {
 		_spec.SetField(auditlog.FieldIP, field.TypeString, value)
 	}
 	if alu.mutation.IPCleared() {
 		_spec.ClearField(auditlog.FieldIP, field.TypeString)
+	}
+	if value, ok := alu.mutation.CorrelationID(); ok {
+		_spec.SetField(auditlog.FieldCorrelationID, field.TypeString, value)
+	}
+	if alu.mutation.CorrelationIDCleared() {
+		_spec.ClearField(auditlog.FieldCorrelationID, field.TypeString)
 	}
 	if alu.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -446,6 +522,27 @@ func (aluo *AuditLogUpdateOne) ClearUserEmail() *AuditLogUpdateOne {
 	return aluo
 }
 
+// SetType sets the "type" field.
+func (aluo *AuditLogUpdateOne) SetType(i int) *AuditLogUpdateOne {
+	aluo.mutation.ResetType()
+	aluo.mutation.SetType(i)
+	return aluo
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (aluo *AuditLogUpdateOne) SetNillableType(i *int) *AuditLogUpdateOne {
+	if i != nil {
+		aluo.SetType(*i)
+	}
+	return aluo
+}
+
+// AddType adds i to the "type" field.
+func (aluo *AuditLogUpdateOne) AddType(i int) *AuditLogUpdateOne {
+	aluo.mutation.AddType(i)
+	return aluo
+}
+
 // SetAction sets the "action" field.
 func (aluo *AuditLogUpdateOne) SetAction(s string) *AuditLogUpdateOne {
 	aluo.mutation.SetAction(s)
@@ -520,6 +617,18 @@ func (aluo *AuditLogUpdateOne) ClearDetail() *AuditLogUpdateOne {
 	return aluo
 }
 
+// SetContent sets the "content" field.
+func (aluo *AuditLogUpdateOne) SetContent(m map[string]interface{}) *AuditLogUpdateOne {
+	aluo.mutation.SetContent(m)
+	return aluo
+}
+
+// ClearContent clears the value of the "content" field.
+func (aluo *AuditLogUpdateOne) ClearContent() *AuditLogUpdateOne {
+	aluo.mutation.ClearContent()
+	return aluo
+}
+
 // SetIP sets the "ip" field.
 func (aluo *AuditLogUpdateOne) SetIP(s string) *AuditLogUpdateOne {
 	aluo.mutation.SetIP(s)
@@ -537,6 +646,26 @@ func (aluo *AuditLogUpdateOne) SetNillableIP(s *string) *AuditLogUpdateOne {
 // ClearIP clears the value of the "ip" field.
 func (aluo *AuditLogUpdateOne) ClearIP() *AuditLogUpdateOne {
 	aluo.mutation.ClearIP()
+	return aluo
+}
+
+// SetCorrelationID sets the "correlation_id" field.
+func (aluo *AuditLogUpdateOne) SetCorrelationID(s string) *AuditLogUpdateOne {
+	aluo.mutation.SetCorrelationID(s)
+	return aluo
+}
+
+// SetNillableCorrelationID sets the "correlation_id" field if the given value is not nil.
+func (aluo *AuditLogUpdateOne) SetNillableCorrelationID(s *string) *AuditLogUpdateOne {
+	if s != nil {
+		aluo.SetCorrelationID(*s)
+	}
+	return aluo
+}
+
+// ClearCorrelationID clears the value of the "correlation_id" field.
+func (aluo *AuditLogUpdateOne) ClearCorrelationID() *AuditLogUpdateOne {
+	aluo.mutation.ClearCorrelationID()
 	return aluo
 }
 
@@ -638,6 +767,11 @@ func (aluo *AuditLogUpdateOne) check() error {
 			return &ValidationError{Name: "ip", err: fmt.Errorf(`ent: validator failed for field "AuditLog.ip": %w`, err)}
 		}
 	}
+	if v, ok := aluo.mutation.CorrelationID(); ok {
+		if err := auditlog.CorrelationIDValidator(v); err != nil {
+			return &ValidationError{Name: "correlation_id", err: fmt.Errorf(`ent: validator failed for field "AuditLog.correlation_id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -685,6 +819,12 @@ func (aluo *AuditLogUpdateOne) sqlSave(ctx context.Context) (_node *AuditLog, er
 	if aluo.mutation.UserEmailCleared() {
 		_spec.ClearField(auditlog.FieldUserEmail, field.TypeString)
 	}
+	if value, ok := aluo.mutation.GetType(); ok {
+		_spec.SetField(auditlog.FieldType, field.TypeInt, value)
+	}
+	if value, ok := aluo.mutation.AddedType(); ok {
+		_spec.AddField(auditlog.FieldType, field.TypeInt, value)
+	}
 	if value, ok := aluo.mutation.Action(); ok {
 		_spec.SetField(auditlog.FieldAction, field.TypeString, value)
 	}
@@ -706,11 +846,23 @@ func (aluo *AuditLogUpdateOne) sqlSave(ctx context.Context) (_node *AuditLog, er
 	if aluo.mutation.DetailCleared() {
 		_spec.ClearField(auditlog.FieldDetail, field.TypeString)
 	}
+	if value, ok := aluo.mutation.Content(); ok {
+		_spec.SetField(auditlog.FieldContent, field.TypeJSON, value)
+	}
+	if aluo.mutation.ContentCleared() {
+		_spec.ClearField(auditlog.FieldContent, field.TypeJSON)
+	}
 	if value, ok := aluo.mutation.IP(); ok {
 		_spec.SetField(auditlog.FieldIP, field.TypeString, value)
 	}
 	if aluo.mutation.IPCleared() {
 		_spec.ClearField(auditlog.FieldIP, field.TypeString)
+	}
+	if value, ok := aluo.mutation.CorrelationID(); ok {
+		_spec.SetField(auditlog.FieldCorrelationID, field.TypeString, value)
+	}
+	if aluo.mutation.CorrelationIDCleared() {
+		_spec.ClearField(auditlog.FieldCorrelationID, field.TypeString)
 	}
 	if aluo.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

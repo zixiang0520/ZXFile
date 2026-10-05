@@ -2,8 +2,10 @@ package share
 
 import (
 	"github.com/cloudreve/Cloudreve/v4/application/dependency"
+	"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
 	"github.com/cloudreve/Cloudreve/v4/pkg/hashid"
 	"github.com/cloudreve/Cloudreve/v4/pkg/serializer"
+	"github.com/cloudreve/Cloudreve/v4/service/explorer"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,5 +40,7 @@ func (service *AbuseReportSubmitService) Submit(c *gin.Context) error {
 		return serializer.NewError(serializer.CodeDBError, "Failed to submit report", err)
 	}
 
+	explorer.WriteAudit(c, eventtype.ReportAbuse, "share", service.ID,
+		map[string]interface{}{"reason": service.Reason})
 	return nil
 }

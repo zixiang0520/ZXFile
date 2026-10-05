@@ -52,11 +52,14 @@ var (
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"mysql": "datetime"}},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"mysql": "datetime"}},
 		{Name: "user_email", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "type", Type: field.TypeInt, Default: 0},
 		{Name: "action", Type: field.TypeString, Size: 64},
 		{Name: "object_type", Type: field.TypeString, Nullable: true, Size: 32},
 		{Name: "object_name", Type: field.TypeString, Nullable: true, Size: 1024},
 		{Name: "detail", Type: field.TypeString, Nullable: true},
+		{Name: "content", Type: field.TypeJSON, Nullable: true},
 		{Name: "ip", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "correlation_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "user_id", Type: field.TypeInt, Nullable: true},
 	}
 	// AuditLogsTable holds the schema information for the "audit_logs" table.
@@ -67,7 +70,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "audit_logs_users_auditlogs",
-				Columns:    []*schema.Column{AuditLogsColumns[10]},
+				Columns:    []*schema.Column{AuditLogsColumns[13]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -81,12 +84,12 @@ var (
 			{
 				Name:    "auditlog_user_id_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{AuditLogsColumns[10], AuditLogsColumns[1]},
+				Columns: []*schema.Column{AuditLogsColumns[13], AuditLogsColumns[1]},
 			},
 			{
 				Name:    "auditlog_action",
 				Unique:  false,
-				Columns: []*schema.Column{AuditLogsColumns[5]},
+				Columns: []*schema.Column{AuditLogsColumns[6]},
 			},
 		},
 	}

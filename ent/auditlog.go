@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -28,6 +29,8 @@ type AuditLog struct {
 	UserID int `json:"user_id,omitempty"`
 	// UserEmail holds the value of the "user_email" field.
 	UserEmail string `json:"user_email,omitempty"`
+	// Type holds the value of the "type" field.
+	Type int `json:"type,omitempty"`
 	// Action holds the value of the "action" field.
 	Action string `json:"action,omitempty"`
 	// ObjectType holds the value of the "object_type" field.
@@ -36,8 +39,12 @@ type AuditLog struct {
 	ObjectName string `json:"object_name,omitempty"`
 	// Detail holds the value of the "detail" field.
 	Detail string `json:"detail,omitempty"`
+	// Content holds the value of the "content" field.
+	Content map[string]interface{} `json:"content,omitempty"`
 	// IP holds the value of the "ip" field.
 	IP string `json:"ip,omitempty"`
+	// CorrelationID holds the value of the "correlation_id" field.
+	CorrelationID string `json:"correlation_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AuditLogQuery when eager-loading is set.
 	Edges        AuditLogEdges `json:"edges"`
@@ -71,9 +78,11 @@ func (*AuditLog) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case auditlog.FieldID, auditlog.FieldUserID:
+		case auditlog.FieldContent:
+			values[i] = new([]byte)
+		case auditlog.FieldID, auditlog.FieldUserID, auditlog.FieldType:
 			values[i] = new(sql.NullInt64)
-		case auditlog.FieldUserEmail, auditlog.FieldAction, auditlog.FieldObjectType, auditlog.FieldObjectName, auditlog.FieldDetail, auditlog.FieldIP:
+		case auditlog.FieldUserEmail, auditlog.FieldAction, auditlog.FieldObjectType, auditlog.FieldObjectName, auditlog.FieldDetail, auditlog.FieldIP, auditlog.FieldCorrelationID:
 			values[i] = new(sql.NullString)
 		case auditlog.FieldCreatedAt, auditlog.FieldUpdatedAt, auditlog.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
@@ -129,6 +138,12 @@ func (al *AuditLog) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				al.UserEmail = value.String
 			}
+		case auditlog.FieldType:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				al.Type = int(value.Int64)
+			}
 		case auditlog.FieldAction:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field action", values[i])
@@ -153,11 +168,25 @@ func (al *AuditLog) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				al.Detail = value.String
 			}
+		case auditlog.FieldContent:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field content", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &al.Content); err != nil {
+					return fmt.Errorf("unmarshal field content: %w", err)
+				}
+			}
 		case auditlog.FieldIP:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ip", values[i])
 			} else if value.Valid {
 				al.IP = value.String
+			}
+		case auditlog.FieldCorrelationID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field correlation_id", values[i])
+			} else if value.Valid {
+				al.CorrelationID = value.String
 			}
 		default:
 			al.selectValues.Set(columns[i], values[i])
@@ -217,6 +246,9 @@ func (al *AuditLog) String() string {
 	builder.WriteString("user_email=")
 	builder.WriteString(al.UserEmail)
 	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(fmt.Sprintf("%v", al.Type))
+	builder.WriteString(", ")
 	builder.WriteString("action=")
 	builder.WriteString(al.Action)
 	builder.WriteString(", ")
@@ -229,8 +261,14 @@ func (al *AuditLog) String() string {
 	builder.WriteString("detail=")
 	builder.WriteString(al.Detail)
 	builder.WriteString(", ")
+	builder.WriteString("content=")
+	builder.WriteString(fmt.Sprintf("%v", al.Content))
+	builder.WriteString(", ")
 	builder.WriteString("ip=")
 	builder.WriteString(al.IP)
+	builder.WriteString(", ")
+	builder.WriteString("correlation_id=")
+	builder.WriteString(al.CorrelationID)
 	builder.WriteByte(')')
 	return builder.String()
 }
