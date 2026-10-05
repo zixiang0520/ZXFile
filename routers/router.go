@@ -1179,6 +1179,11 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 					)
 				}
 
+				// File usage statistics (per-user/per-policy aggregation).
+				// Separate path to avoid gin route ambiguity with file.GET(":id").
+				admin.GET("file_stats",
+					controllers.AdminFileStats,
+				)
 				file := admin.Group("file")
 				{
 					// 列出文件

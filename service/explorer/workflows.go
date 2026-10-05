@@ -314,7 +314,8 @@ func (service *ImportWorkflowService) CreateImportTask(c *gin.Context) (*TaskRes
 
 type (
 	RelocateWorkflowService struct {
-		Src         []string `json:"src" binding:"required,dive,required"`
+		Src         []string `json:"src" binding:"required_without=FileIDs,dive,required"`
+		FileIDs     []int    `json:"file_ids" binding:"required_without=Src,min=1"`
 		DstPolicyID int      `json:"dst_policy_id" binding:"required"`
 	}
 	CreateRelocateParamCtx struct{}
@@ -329,7 +330,7 @@ func (service *RelocateWorkflowService) CreateRelocateTask(c *gin.Context) (*Tas
 		return nil, serializer.NewError(serializer.CodeGroupNotAllowed, "Only admin can relocate files", nil)
 	}
 
-	t, err := workflows.NewRelocateTask(c, user, service.Src, service.DstPolicyID)
+	t, err := workflows.NewRelocateTask(c, user, service.Src, service.FileIDs, service.DstPolicyID)
 	if err != nil {
 		return nil, serializer.NewError(serializer.CodeCreateTaskError, "Failed to create task", err)
 	}

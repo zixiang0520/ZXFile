@@ -52,7 +52,10 @@ type (
 		Search       *SearchFileParameters
 	}
 
-	FlattenListFileParameters struct {
+	// FlattenListFileParameters parameters for flattened file listing in admin panel.
+// TypeFilter: -1 = all (files, folders and symbolic links), 0 = files only
+// (default, legacy behavior), 1 = folders only.
+FlattenListFileParameters struct {
 		*PaginationArgs
 		UserID          int
 		Name            string
@@ -60,6 +63,7 @@ type (
 		HasMetadata     string
 		Shared          bool
 		HasDirectLink   bool
+		TypeFilter      int
 	}
 
 	MetadataFilter struct {
@@ -1151,7 +1155,18 @@ func (f *fileClient) GetByIDs(ctx context.Context, ids []int, page int) ([]*ent.
 }
 
 func (f *fileClient) FlattenListFiles(ctx context.Context, args *FlattenListFileParameters) (*ListFileResult, error) {
-	query := f.client.File.Query().Where(file.Type(int(types.FileTypeFile)), file.IsSymbolic(false))
+	var query *ent.FileQuery
+	switch args.TypeFilter {
+	case -1:
+		// All files, folders and symbolic links.
+		query = f.client.File.Query().Where(file.NameNEQ(RootFolderName))
+	case int(types.FileTypeFolder):
+		query = f.client.File.Query().
+			Where(file.Type(int(types.FileTypeFolder)), file.IsSymbolic(false), file.NameNEQ(RootFolderName))
+	default:
+		// Legacy default: regular files only.
+		query = f.client.File.Query().Where(file.Type(int(types.FileTypeFile)), file.IsSymbolic(false))
+	}
 
 	if args.UserID > 0 {
 		query = query.Where(file.OwnerID(args.UserID))

@@ -437,6 +437,17 @@ func AdminListFiles(c *gin.Context) {
 	c.JSON(200, serializer.Response{Data: res})
 }
 
+// AdminFileStats aggregates site-wide file usage metrics.
+func AdminFileStats(c *gin.Context) {
+	service := admin.FileStatsService{}
+	res, err := service.Get(c)
+	if err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{Data: res})
+}
+
 func AdminGetFile(c *gin.Context) {
 	service := ParametersFromContext[*admin.SingleFileService](c, admin.SingleFileParamCtx{})
 	res, err := service.Get(c)

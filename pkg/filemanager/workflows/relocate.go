@@ -13,6 +13,7 @@ import (
 
 	"github.com/cloudreve/Cloudreve/v4/application/dependency"
 	"github.com/cloudreve/Cloudreve/v4/ent"
+	"github.com/cloudreve/Cloudreve/v4/ent/file"
 	"github.com/cloudreve/Cloudreve/v4/ent/task"
 	"github.com/cloudreve/Cloudreve/v4/inventory"
 	"github.com/cloudreve/Cloudreve/v4/inventory/types"
@@ -62,7 +63,8 @@ type (
 	}
 
 	RelocateTaskState struct {
-		SrcUris     []string          `json:"src_uris"`
+		SrcUris     []string          `json:"src_uris,omitempty"`
+		FileIDs     []int             `json:"file_ids,omitempty"`
 		DstPolicyID int               `json:"dst_policy_id"`
 		Phase       RelocateTaskPhase `json:"phase"`
 		Failed      int               `json:"failed,omitempty"`
@@ -86,9 +88,10 @@ func init() {
 	queue.RegisterResumableTaskFactory(queue.RelocateTaskType, NewRelocateTaskFromModel)
 }
 
-func NewRelocateTask(ctx context.Context, u *ent.User, srcUris []string, dstPolicyID int) (queue.Task, error) {
+func NewRelocateTask(ctx context.Context, u *ent.User, srcUris []string, fileIDs []int, dstPolicyID int) (queue.Task, error) {
 	state := &RelocateTaskState{
 		SrcUris:     srcUris,
+		FileIDs:     fileIDs,
 		DstPolicyID: dstPolicyID,
 	}
 	stateBytes, err := json.Marshal(state)
@@ -168,52 +171,55 @@ func (m *RelocateTask) processRelocate(ctx context.Context, dep dependency.Dep) 
 	}
 }
 
-// prepare walks the source URIs and builds a migration plan for every entity
-// (including historical versions) of every file found.
+// prepare builds the migration plan either from explicit file IDs (admin
+// panel batch mode, ownership bypassed) or by walking the source URIs.
 func (m *RelocateTask) prepare(ctx context.Context, dep dependency.Dep, user *ent.User) (task.Status, error) {
-	fm := manager.NewFileManager(dep, user)
-	defer fm.Recycle()
-
 	dstPolicy, err := dep.StoragePolicyClient().GetPolicyByID(ctx, m.state.DstPolicyID)
 	if err != nil {
 		return task.StatusError, fmt.Errorf("failed to get dst policy (%w)", queue.CriticalErr)
 	}
 
 	plan := make([]*relocatePlanEntry, 0)
-	for _, srcUri := range m.state.SrcUris {
-		if err := ctx.Err(); err != nil {
-			return task.StatusError, err
-		}
 
-		uri, err := fs.NewUriFromString(srcUri)
-		if err != nil {
-			m.l.Warning("Skipping invalid src uri %q: %s", srcUri, err)
-			m.state.Failed++
-			continue
-		}
+	if len(m.state.FileIDs) > 0 {
+		// Admin batch mode: load files by ID directly, bypassing ownership.
+		fm := manager.NewFileManager(dep, user)
+		defer fm.Recycle()
 
-		if err := fm.Walk(ctx, uri, math.MaxInt32, func(f fs.File, level int) error {
-			if f.Type() != types.FileTypeFile || f.IsSymbolic() {
-				return nil
+		for batchStart := 0; batchStart < len(m.state.FileIDs); batchStart += RelocateBatchSize {
+			batchEnd := min(batchStart+RelocateBatchSize, len(m.state.FileIDs))
+			batch := m.state.FileIDs[batchStart:batchEnd]
+
+			files, err := dep.DBClient().File.Query().
+				Where(file.IDIn(batch...)).
+				WithEntities().
+				All(ctx)
+			if err != nil {
+				return task.StatusError, fmt.Errorf("failed to load files by ID: %w", err)
 			}
-			for _, e := range f.Entities() {
-				if e.ReferenceCount() == 0 {
+
+			for _, f := range files {
+				if f == nil || f.Type != int(types.FileTypeFile) {
 					continue
 				}
-				newSavePath := relocateSavePath(dstPolicy, f.DisplayName(), uri.Dir(), user)
-				plan = append(plan, &relocatePlanEntry{
-					EntityID:    e.ID(),
-					OldSource:   e.Source(),
-					OldPolicyID: e.PolicyID(),
-					NewSavePath: newSavePath,
-					Size:        e.Size(),
-					DisplayName: f.DisplayName(),
-				})
+				for _, e := range f.Edges.Entities {
+					if e == nil || e.ReferenceCount == 0 {
+						continue
+					}
+					plan = append(plan, &relocatePlanEntry{
+						EntityID:    e.ID,
+						OldSource:   e.Source,
+						OldPolicyID: e.StoragePolicyEntities,
+						NewSavePath: relocateSavePath(dstPolicy, f.Name, "/", user),
+						Size:        e.Size,
+						DisplayName: f.Name,
+					})
+				}
 			}
-			return nil
-		}, dbfs.WithFileEntities()); err != nil {
-			m.l.Warning("Failed to walk %q: %s", srcUri, err)
-			m.state.Failed++
+		}
+	} else {
+		if err := m.walkSources(ctx, dep, user, dstPolicy, &plan); err != nil {
+			return task.StatusError, err
 		}
 	}
 
@@ -251,6 +257,50 @@ func (m *RelocateTask) prepare(ctx context.Context, dep dependency.Dep, user *en
 
 	m.state.Phase = RelocateTaskPhaseExecute
 	return task.StatusSuspending, nil
+}
+
+// walkSources walks the source URIs and appends per-entity plan entries.
+func (m *RelocateTask) walkSources(ctx context.Context, dep dependency.Dep, user *ent.User,
+	dstPolicy *ent.StoragePolicy, plan *[]*relocatePlanEntry) error {
+	fm := manager.NewFileManager(dep, user)
+	defer fm.Recycle()
+
+	for _, srcUri := range m.state.SrcUris {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+
+		uri, err := fs.NewUriFromString(srcUri)
+		if err != nil {
+			m.l.Warning("Skipping invalid src uri %q: %s", srcUri, err)
+			m.state.Failed++
+			continue
+		}
+
+		if err := fm.Walk(ctx, uri, math.MaxInt32, func(f fs.File, level int) error {
+			if f.Type() != types.FileTypeFile || f.IsSymbolic() {
+				return nil
+			}
+			for _, e := range f.Entities() {
+				if e.ReferenceCount() == 0 {
+					continue
+				}
+				*plan = append(*plan, &relocatePlanEntry{
+					EntityID:    e.ID(),
+					OldSource:   e.Source(),
+					OldPolicyID: e.PolicyID(),
+					NewSavePath: relocateSavePath(dstPolicy, f.DisplayName(), uri.Dir(), user),
+					Size:        e.Size(),
+					DisplayName: f.DisplayName(),
+				})
+			}
+			return nil
+		}, dbfs.WithFileEntities()); err != nil {
+			m.l.Warning("Failed to walk %q: %s", srcUri, err)
+			m.state.Failed++
+		}
+	}
+	return nil
 }
 
 // execute performs the actual data transfer with bounded concurrency.

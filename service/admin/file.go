@@ -157,6 +157,7 @@ const (
 	fileMetadataCondition   = "file_metadata"
 	fileSharedCondition     = "file_shared"
 	fileDirectLinkCondition = "file_direct_link"
+	fileTypeCondition       = "file_type"
 )
 
 func (service *AdminListService) Files(c *gin.Context) (*ListFileResponse, error) {
@@ -177,13 +178,29 @@ func (service *AdminListService) Files(c *gin.Context) (*ListFileResponse, error
 		metadata   string
 		shared     bool
 		directLink bool
+		typeFilter int
 	)
 
 	if service.Conditions[fileUserCondition] != "" {
-		userID, err = strconv.Atoi(service.Conditions[fileUserCondition])
-		if err != nil {
-			return nil, serializer.NewError(serializer.CodeParamErr, "Invalid user ID", err)
+		if parsed, perr := strconv.Atoi(service.Conditions[fileUserCondition]); perr == nil {
+			userID = parsed
+		} else if decoded, derr := hasher.Decode(service.Conditions[fileUserCondition], hashid.UserID); derr == nil {
+			// Accept hash-encoded user IDs (e.g. from user search picker).
+			userID = decoded
+		} else {
+			return nil, serializer.NewError(serializer.CodeParamErr, "Invalid user ID", perr)
 		}
+	}
+
+	// file_type: "all" = files+folders+symbolic, "folder" = folders only,
+	// empty or "file" = legacy files-only behavior.
+	switch service.Conditions[fileTypeCondition] {
+	case "all":
+		typeFilter = -1
+	case "folder":
+		typeFilter = 1
+	default:
+		typeFilter = 0
 	}
 
 	if service.Conditions[filePolicyCondition] != "" {
@@ -218,6 +235,7 @@ func (service *AdminListService) Files(c *gin.Context) (*ListFileResponse, error
 		HasMetadata:     metadata,
 		Shared:          shared,
 		HasDirectLink:   directLink,
+		TypeFilter:      typeFilter,
 	})
 
 	if err != nil {
