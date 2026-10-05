@@ -5,8 +5,10 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/application/dependency"
 	"github.com/cloudreve/Cloudreve/v4/inventory"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/driver/onedrive"
+	"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/fs"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/manager"
+	"github.com/cloudreve/Cloudreve/v4/service/explorer"
 	"github.com/gin-gonic/gin"
 )
 
@@ -54,6 +56,11 @@ func ProcessCallback(c *gin.Context) error {
 	_, err := m.CompleteUpload(c, uploadSession)
 	if err != nil {
 		return fmt.Errorf("failed to complete upload: %w", err)
+	}
+
+	if uploadSession.Props != nil {
+		explorer.WriteAudit(c, eventtype.EntityUploaded, "file", uploadSession.Props.Uri.Name(),
+			map[string]interface{}{"uri": uploadSession.Props.Uri.String(), "size": uploadSession.Props.Size})
 	}
 
 	return nil

@@ -5,16 +5,17 @@ import (
 	"time"
 
 	"github.com/cloudreve/Cloudreve/v4/application/dependency"
-	"github.com/cloudreve/Cloudreve/v4/inventory"
-	"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
+	"github.com/cloudreve/Cloudreve/v4/ent"
+		"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
 	"github.com/cloudreve/Cloudreve/v4/pkg/logging"
 	"github.com/cloudreve/Cloudreve/v4/pkg/serializer"
 	"github.com/gin-gonic/gin"
 )
 
 // WriteAuthAudit records authentication events (login / login failed) into
-// the site-wide audit log. Best-effort, async.
-func WriteAuthAudit(c *gin.Context, ev eventtype.EventType, email string, err error) {
+// the site-wide audit log. Best-effort, async. u may be nil for failed
+// logins where the user could not be resolved.
+func WriteAuthAudit(c *gin.Context, ev eventtype.EventType, u *ent.User, email string, err error) {
 	dep := dependency.FromContext(c)
 	if dep == nil {
 		return
@@ -24,8 +25,9 @@ func WriteAuthAudit(c *gin.Context, ev eventtype.EventType, email string, err er
 
 	ip := c.ClientIP()
 	var userID int
-	if u := inventory.UserFromContext(c); u != nil {
-		userID = u.ID
+	var userEmail string
+	if u != nil {
+		userID, userEmail = u.ID, u.Email
 	}
 
 	go func() {
@@ -42,7 +44,7 @@ func WriteAuthAudit(c *gin.Context, ev eventtype.EventType, email string, err er
 			}).
 			SetIP(ip)
 		if userID > 0 {
-			creator = creator.SetUserID(userID).SetUserEmail(email)
+			creator = creator.SetUserID(userID).SetUserEmail(userEmail)
 		}
 		if _, e := creator.Save(ctx); e != nil {
 			l.Warning("Failed to write auth audit (event=%s): %s", ev.Name(), e)

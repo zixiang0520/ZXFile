@@ -10,6 +10,7 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/inventory/types"
 	"github.com/cloudreve/Cloudreve/v4/pkg/cluster/routes"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/fs"
+	"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/manager"
 	"github.com/cloudreve/Cloudreve/v4/pkg/hashid"
 	"github.com/cloudreve/Cloudreve/v4/pkg/serializer"
@@ -78,6 +79,8 @@ func (s *ShareInfoService) Get(c *gin.Context) (*explorer.Share, error) {
 
 	if s.CountViews {
 		_ = shareClient.Viewed(c, share)
+		explorer.WriteAudit(c, eventtype.ShareLinkViewed, "share", share.Edges.File.Name,
+			map[string]interface{}{"share_id": share.ID})
 	}
 
 	unlocked := true

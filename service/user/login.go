@@ -141,11 +141,15 @@ func (service *UserLoginService) Login(c *gin.Context) (*ent.User, string, error
 	}
 
 	if err != nil {
-		WriteAuthAudit(c, eventtype.UserLoginFailed, service.UserName, err)
+		var known *ent.User
+		if expectedUser != nil && expectedUser.ID > 0 {
+			known = expectedUser
+		}
+		WriteAuthAudit(c, eventtype.UserLoginFailed, known, service.UserName, err)
 		return nil, "", err
 	}
 
-	WriteAuthAudit(c, eventtype.UserLogin, expectedUser.Email, nil)
+	WriteAuthAudit(c, eventtype.UserLogin, expectedUser, expectedUser.Email, nil)
 
 	if expectedUser.TwoFactorSecret != "" {
 		twoFaSessionID := uuid.Must(uuid.NewV4())

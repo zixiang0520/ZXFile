@@ -101,6 +101,15 @@ func (s *GetDirectLinkService) Get(c *gin.Context) ([]DirectLinkResponse, error)
 	dep := dependency.FromContext(c)
 	u := inventory.UserFromContext(c)
 
+	for _, uri := range s.Uris {
+		ru, _ := fs.NewUriFromString(uri)
+		name := ""
+		if ru != nil {
+			name = ru.Name()
+		}
+		WriteAudit(c, eventtype.GetDirectLink, "file", name, map[string]interface{}{"uri": uri})
+	}
+
 	if u.Edges.Group.Settings.SourceBatchSize == 0 {
 		return nil, serializer.NewError(serializer.CodeGroupNotAllowed, "", nil)
 	}
