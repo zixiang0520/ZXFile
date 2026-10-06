@@ -73,10 +73,17 @@ func (c *settingClient) Gets(ctx context.Context, names []string) (map[string]st
 
 func (c *settingClient) Set(ctx context.Context, settings map[string]string) error {
 	for k, v := range settings {
-		if err := c.client.Setting.Update().Where(setting.Name(k)).SetValue(v).Exec(ctx); err != nil {
-			return fmt.Errorf("failed to create setting %q: %w", k, err)
+		// upsert：先更新；行不存在（新设置键）时插入。
+		// 旧实现只做 UPDATE，新键匹配 0 行也返回成功——静默丢数据。
+		n, err := c.client.Setting.Update().Where(setting.Name(k)).SetValue(v).Save(ctx)
+		if err != nil {
+			return fmt.Errorf("failed to update setting %q: %w", k, err)
 		}
-
+		if n == 0 {
+			if _, err := c.client.Setting.Create().SetName(k).SetValue(v).Save(ctx); err != nil {
+				return fmt.Errorf("failed to create setting %q: %w", k, err)
+			}
+		}
 	}
 
 	return nil
