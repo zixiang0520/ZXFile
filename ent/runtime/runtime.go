@@ -12,12 +12,15 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/ent/entity"
 	"github.com/cloudreve/Cloudreve/v4/ent/file"
 	"github.com/cloudreve/Cloudreve/v4/ent/fsevent"
+	"github.com/cloudreve/Cloudreve/v4/ent/giftcode"
 	"github.com/cloudreve/Cloudreve/v4/ent/group"
 	"github.com/cloudreve/Cloudreve/v4/ent/metadata"
 	"github.com/cloudreve/Cloudreve/v4/ent/node"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthclient"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthgrant"
 	"github.com/cloudreve/Cloudreve/v4/ent/passkey"
+	"github.com/cloudreve/Cloudreve/v4/ent/payment"
+	"github.com/cloudreve/Cloudreve/v4/ent/pointsledger"
 	"github.com/cloudreve/Cloudreve/v4/ent/schema"
 	"github.com/cloudreve/Cloudreve/v4/ent/setting"
 	"github.com/cloudreve/Cloudreve/v4/ent/share"
@@ -215,6 +218,49 @@ func init() {
 	fsevent.DefaultUpdatedAt = fseventDescUpdatedAt.Default.(func() time.Time)
 	// fsevent.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	fsevent.UpdateDefaultUpdatedAt = fseventDescUpdatedAt.UpdateDefault.(func() time.Time)
+	giftcodeMixin := schema.GiftCode{}.Mixin()
+	giftcodeMixinHooks0 := giftcodeMixin[0].Hooks()
+	giftcode.Hooks[0] = giftcodeMixinHooks0[0]
+	giftcodeMixinInters0 := giftcodeMixin[0].Interceptors()
+	giftcode.Interceptors[0] = giftcodeMixinInters0[0]
+	giftcodeMixinFields0 := giftcodeMixin[0].Fields()
+	_ = giftcodeMixinFields0
+	giftcodeFields := schema.GiftCode{}.Fields()
+	_ = giftcodeFields
+	// giftcodeDescCreatedAt is the schema descriptor for created_at field.
+	giftcodeDescCreatedAt := giftcodeMixinFields0[0].Descriptor()
+	// giftcode.DefaultCreatedAt holds the default value on creation for the created_at field.
+	giftcode.DefaultCreatedAt = giftcodeDescCreatedAt.Default.(func() time.Time)
+	// giftcodeDescUpdatedAt is the schema descriptor for updated_at field.
+	giftcodeDescUpdatedAt := giftcodeMixinFields0[1].Descriptor()
+	// giftcode.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	giftcode.DefaultUpdatedAt = giftcodeDescUpdatedAt.Default.(func() time.Time)
+	// giftcode.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	giftcode.UpdateDefaultUpdatedAt = giftcodeDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// giftcodeDescCode is the schema descriptor for code field.
+	giftcodeDescCode := giftcodeFields[0].Descriptor()
+	// giftcode.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	giftcode.CodeValidator = giftcodeDescCode.Validators[0].(func(string) error)
+	// giftcodeDescProductType is the schema descriptor for product_type field.
+	giftcodeDescProductType := giftcodeFields[1].Descriptor()
+	// giftcode.ProductTypeValidator is a validator for the "product_type" field. It is called by the builders before save.
+	giftcode.ProductTypeValidator = giftcodeDescProductType.Validators[0].(func(string) error)
+	// giftcodeDescName is the schema descriptor for name field.
+	giftcodeDescName := giftcodeFields[3].Descriptor()
+	// giftcode.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	giftcode.NameValidator = giftcodeDescName.Validators[0].(func(string) error)
+	// giftcodeDescUsed is the schema descriptor for used field.
+	giftcodeDescUsed := giftcodeFields[4].Descriptor()
+	// giftcode.DefaultUsed holds the default value on creation for the used field.
+	giftcode.DefaultUsed = giftcodeDescUsed.Default.(bool)
+	// giftcodeDescUsedByEmail is the schema descriptor for used_by_email field.
+	giftcodeDescUsedByEmail := giftcodeFields[6].Descriptor()
+	// giftcode.UsedByEmailValidator is a validator for the "used_by_email" field. It is called by the builders before save.
+	giftcode.UsedByEmailValidator = giftcodeDescUsedByEmail.Validators[0].(func(string) error)
+	// giftcodeDescCreatedByEmail is the schema descriptor for created_by_email field.
+	giftcodeDescCreatedByEmail := giftcodeFields[7].Descriptor()
+	// giftcode.CreatedByEmailValidator is a validator for the "created_by_email" field. It is called by the builders before save.
+	giftcode.CreatedByEmailValidator = giftcodeDescCreatedByEmail.Validators[0].(func(string) error)
 	groupMixin := schema.Group{}.Mixin()
 	groupMixinHooks0 := groupMixin[0].Hooks()
 	group.Hooks[0] = groupMixinHooks0[0]
@@ -381,6 +427,110 @@ func init() {
 	passkey.DefaultUpdatedAt = passkeyDescUpdatedAt.Default.(func() time.Time)
 	// passkey.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	passkey.UpdateDefaultUpdatedAt = passkeyDescUpdatedAt.UpdateDefault.(func() time.Time)
+	paymentMixin := schema.Payment{}.Mixin()
+	paymentMixinHooks0 := paymentMixin[0].Hooks()
+	payment.Hooks[0] = paymentMixinHooks0[0]
+	paymentMixinInters0 := paymentMixin[0].Interceptors()
+	payment.Interceptors[0] = paymentMixinInters0[0]
+	paymentMixinFields0 := paymentMixin[0].Fields()
+	_ = paymentMixinFields0
+	paymentFields := schema.Payment{}.Fields()
+	_ = paymentFields
+	// paymentDescCreatedAt is the schema descriptor for created_at field.
+	paymentDescCreatedAt := paymentMixinFields0[0].Descriptor()
+	// payment.DefaultCreatedAt holds the default value on creation for the created_at field.
+	payment.DefaultCreatedAt = paymentDescCreatedAt.Default.(func() time.Time)
+	// paymentDescUpdatedAt is the schema descriptor for updated_at field.
+	paymentDescUpdatedAt := paymentMixinFields0[1].Descriptor()
+	// payment.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	payment.DefaultUpdatedAt = paymentDescUpdatedAt.Default.(func() time.Time)
+	// payment.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	payment.UpdateDefaultUpdatedAt = paymentDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// paymentDescOrderNo is the schema descriptor for order_no field.
+	paymentDescOrderNo := paymentFields[0].Descriptor()
+	// payment.OrderNoValidator is a validator for the "order_no" field. It is called by the builders before save.
+	payment.OrderNoValidator = paymentDescOrderNo.Validators[0].(func(string) error)
+	// paymentDescProductType is the schema descriptor for product_type field.
+	paymentDescProductType := paymentFields[2].Descriptor()
+	// payment.ProductTypeValidator is a validator for the "product_type" field. It is called by the builders before save.
+	payment.ProductTypeValidator = paymentDescProductType.Validators[0].(func(string) error)
+	// paymentDescSkuName is the schema descriptor for sku_name field.
+	paymentDescSkuName := paymentFields[4].Descriptor()
+	// payment.SkuNameValidator is a validator for the "sku_name" field. It is called by the builders before save.
+	payment.SkuNameValidator = paymentDescSkuName.Validators[0].(func(string) error)
+	// paymentDescQuantity is the schema descriptor for quantity field.
+	paymentDescQuantity := paymentFields[6].Descriptor()
+	// payment.DefaultQuantity holds the default value on creation for the quantity field.
+	payment.DefaultQuantity = paymentDescQuantity.Default.(int)
+	// paymentDescAmount is the schema descriptor for amount field.
+	paymentDescAmount := paymentFields[7].Descriptor()
+	// payment.DefaultAmount holds the default value on creation for the amount field.
+	payment.DefaultAmount = paymentDescAmount.Default.(int64)
+	// paymentDescCurrency is the schema descriptor for currency field.
+	paymentDescCurrency := paymentFields[8].Descriptor()
+	// payment.CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
+	payment.CurrencyValidator = paymentDescCurrency.Validators[0].(func(string) error)
+	// paymentDescPointsUsed is the schema descriptor for points_used field.
+	paymentDescPointsUsed := paymentFields[9].Descriptor()
+	// payment.DefaultPointsUsed holds the default value on creation for the points_used field.
+	payment.DefaultPointsUsed = paymentDescPointsUsed.Default.(int64)
+	// paymentDescChannel is the schema descriptor for channel field.
+	paymentDescChannel := paymentFields[10].Descriptor()
+	// payment.ChannelValidator is a validator for the "channel" field. It is called by the builders before save.
+	payment.ChannelValidator = paymentDescChannel.Validators[0].(func(string) error)
+	// paymentDescChannelTradeNo is the schema descriptor for channel_trade_no field.
+	paymentDescChannelTradeNo := paymentFields[11].Descriptor()
+	// payment.ChannelTradeNoValidator is a validator for the "channel_trade_no" field. It is called by the builders before save.
+	payment.ChannelTradeNoValidator = paymentDescChannelTradeNo.Validators[0].(func(string) error)
+	// paymentDescPayURL is the schema descriptor for pay_url field.
+	paymentDescPayURL := paymentFields[12].Descriptor()
+	// payment.PayURLValidator is a validator for the "pay_url" field. It is called by the builders before save.
+	payment.PayURLValidator = paymentDescPayURL.Validators[0].(func(string) error)
+	// paymentDescStatus is the schema descriptor for status field.
+	paymentDescStatus := paymentFields[13].Descriptor()
+	// payment.DefaultStatus holds the default value on creation for the status field.
+	payment.DefaultStatus = paymentDescStatus.Default.(string)
+	// payment.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	payment.StatusValidator = paymentDescStatus.Validators[0].(func(string) error)
+	// paymentDescFailureReason is the schema descriptor for failure_reason field.
+	paymentDescFailureReason := paymentFields[14].Descriptor()
+	// payment.FailureReasonValidator is a validator for the "failure_reason" field. It is called by the builders before save.
+	payment.FailureReasonValidator = paymentDescFailureReason.Validators[0].(func(string) error)
+	// paymentDescEmail is the schema descriptor for email field.
+	paymentDescEmail := paymentFields[15].Descriptor()
+	// payment.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	payment.EmailValidator = paymentDescEmail.Validators[0].(func(string) error)
+	// paymentDescResumeTicket is the schema descriptor for resume_ticket field.
+	paymentDescResumeTicket := paymentFields[16].Descriptor()
+	// payment.ResumeTicketValidator is a validator for the "resume_ticket" field. It is called by the builders before save.
+	payment.ResumeTicketValidator = paymentDescResumeTicket.Validators[0].(func(string) error)
+	pointsledgerMixin := schema.PointsLedger{}.Mixin()
+	pointsledgerMixinHooks0 := pointsledgerMixin[0].Hooks()
+	pointsledger.Hooks[0] = pointsledgerMixinHooks0[0]
+	pointsledgerMixinInters0 := pointsledgerMixin[0].Interceptors()
+	pointsledger.Interceptors[0] = pointsledgerMixinInters0[0]
+	pointsledgerMixinFields0 := pointsledgerMixin[0].Fields()
+	_ = pointsledgerMixinFields0
+	pointsledgerFields := schema.PointsLedger{}.Fields()
+	_ = pointsledgerFields
+	// pointsledgerDescCreatedAt is the schema descriptor for created_at field.
+	pointsledgerDescCreatedAt := pointsledgerMixinFields0[0].Descriptor()
+	// pointsledger.DefaultCreatedAt holds the default value on creation for the created_at field.
+	pointsledger.DefaultCreatedAt = pointsledgerDescCreatedAt.Default.(func() time.Time)
+	// pointsledgerDescUpdatedAt is the schema descriptor for updated_at field.
+	pointsledgerDescUpdatedAt := pointsledgerMixinFields0[1].Descriptor()
+	// pointsledger.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	pointsledger.DefaultUpdatedAt = pointsledgerDescUpdatedAt.Default.(func() time.Time)
+	// pointsledger.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	pointsledger.UpdateDefaultUpdatedAt = pointsledgerDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// pointsledgerDescReason is the schema descriptor for reason field.
+	pointsledgerDescReason := pointsledgerFields[3].Descriptor()
+	// pointsledger.ReasonValidator is a validator for the "reason" field. It is called by the builders before save.
+	pointsledger.ReasonValidator = pointsledgerDescReason.Validators[0].(func(string) error)
+	// pointsledgerDescNote is the schema descriptor for note field.
+	pointsledgerDescNote := pointsledgerFields[4].Descriptor()
+	// pointsledger.NoteValidator is a validator for the "note" field. It is called by the builders before save.
+	pointsledger.NoteValidator = pointsledgerDescNote.Validators[0].(func(string) error)
 	settingMixin := schema.Setting{}.Mixin()
 	settingMixinHooks0 := settingMixin[0].Hooks()
 	setting.Hooks[0] = settingMixinHooks0[0]

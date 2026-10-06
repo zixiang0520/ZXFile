@@ -16,9 +16,12 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/ent/entity"
 	"github.com/cloudreve/Cloudreve/v4/ent/file"
 	"github.com/cloudreve/Cloudreve/v4/ent/fsevent"
+	"github.com/cloudreve/Cloudreve/v4/ent/giftcode"
 	"github.com/cloudreve/Cloudreve/v4/ent/group"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthgrant"
 	"github.com/cloudreve/Cloudreve/v4/ent/passkey"
+	"github.com/cloudreve/Cloudreve/v4/ent/payment"
+	"github.com/cloudreve/Cloudreve/v4/ent/pointsledger"
 	"github.com/cloudreve/Cloudreve/v4/ent/predicate"
 	"github.com/cloudreve/Cloudreve/v4/ent/share"
 	"github.com/cloudreve/Cloudreve/v4/ent/task"
@@ -28,20 +31,23 @@ import (
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx             *QueryContext
-	order           []user.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.User
-	withGroup       *GroupQuery
-	withFiles       *FileQuery
-	withDavAccounts *DavAccountQuery
-	withShares      *ShareQuery
-	withPasskey     *PasskeyQuery
-	withTasks       *TaskQuery
-	withFsevents    *FsEventQuery
-	withAuditlogs   *AuditLogQuery
-	withEntities    *EntityQuery
-	withOauthGrants *OAuthGrantQuery
+	ctx               *QueryContext
+	order             []user.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.User
+	withGroup         *GroupQuery
+	withFiles         *FileQuery
+	withDavAccounts   *DavAccountQuery
+	withShares        *ShareQuery
+	withPasskey       *PasskeyQuery
+	withTasks         *TaskQuery
+	withFsevents      *FsEventQuery
+	withAuditlogs     *AuditLogQuery
+	withPayments      *PaymentQuery
+	withPointsLedgers *PointsLedgerQuery
+	withGiftcodes     *GiftCodeQuery
+	withEntities      *EntityQuery
+	withOauthGrants   *OAuthGrantQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -247,6 +253,72 @@ func (uq *UserQuery) QueryAuditlogs() *AuditLogQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(auditlog.Table, auditlog.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.AuditlogsTable, user.AuditlogsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPayments chains the current query on the "payments" edge.
+func (uq *UserQuery) QueryPayments() *PaymentQuery {
+	query := (&PaymentClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(payment.Table, payment.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PaymentsTable, user.PaymentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPointsLedgers chains the current query on the "points_ledgers" edge.
+func (uq *UserQuery) QueryPointsLedgers() *PointsLedgerQuery {
+	query := (&PointsLedgerClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(pointsledger.Table, pointsledger.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PointsLedgersTable, user.PointsLedgersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGiftcodes chains the current query on the "giftcodes" edge.
+func (uq *UserQuery) QueryGiftcodes() *GiftCodeQuery {
+	query := (&GiftCodeClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(giftcode.Table, giftcode.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.GiftcodesTable, user.GiftcodesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -485,21 +557,24 @@ func (uq *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:          uq.config,
-		ctx:             uq.ctx.Clone(),
-		order:           append([]user.OrderOption{}, uq.order...),
-		inters:          append([]Interceptor{}, uq.inters...),
-		predicates:      append([]predicate.User{}, uq.predicates...),
-		withGroup:       uq.withGroup.Clone(),
-		withFiles:       uq.withFiles.Clone(),
-		withDavAccounts: uq.withDavAccounts.Clone(),
-		withShares:      uq.withShares.Clone(),
-		withPasskey:     uq.withPasskey.Clone(),
-		withTasks:       uq.withTasks.Clone(),
-		withFsevents:    uq.withFsevents.Clone(),
-		withAuditlogs:   uq.withAuditlogs.Clone(),
-		withEntities:    uq.withEntities.Clone(),
-		withOauthGrants: uq.withOauthGrants.Clone(),
+		config:            uq.config,
+		ctx:               uq.ctx.Clone(),
+		order:             append([]user.OrderOption{}, uq.order...),
+		inters:            append([]Interceptor{}, uq.inters...),
+		predicates:        append([]predicate.User{}, uq.predicates...),
+		withGroup:         uq.withGroup.Clone(),
+		withFiles:         uq.withFiles.Clone(),
+		withDavAccounts:   uq.withDavAccounts.Clone(),
+		withShares:        uq.withShares.Clone(),
+		withPasskey:       uq.withPasskey.Clone(),
+		withTasks:         uq.withTasks.Clone(),
+		withFsevents:      uq.withFsevents.Clone(),
+		withAuditlogs:     uq.withAuditlogs.Clone(),
+		withPayments:      uq.withPayments.Clone(),
+		withPointsLedgers: uq.withPointsLedgers.Clone(),
+		withGiftcodes:     uq.withGiftcodes.Clone(),
+		withEntities:      uq.withEntities.Clone(),
+		withOauthGrants:   uq.withOauthGrants.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -591,6 +666,39 @@ func (uq *UserQuery) WithAuditlogs(opts ...func(*AuditLogQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withAuditlogs = query
+	return uq
+}
+
+// WithPayments tells the query-builder to eager-load the nodes that are connected to
+// the "payments" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithPayments(opts ...func(*PaymentQuery)) *UserQuery {
+	query := (&PaymentClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withPayments = query
+	return uq
+}
+
+// WithPointsLedgers tells the query-builder to eager-load the nodes that are connected to
+// the "points_ledgers" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithPointsLedgers(opts ...func(*PointsLedgerQuery)) *UserQuery {
+	query := (&PointsLedgerClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withPointsLedgers = query
+	return uq
+}
+
+// WithGiftcodes tells the query-builder to eager-load the nodes that are connected to
+// the "giftcodes" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithGiftcodes(opts ...func(*GiftCodeQuery)) *UserQuery {
+	query := (&GiftCodeClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withGiftcodes = query
 	return uq
 }
 
@@ -694,7 +802,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [10]bool{
+		loadedTypes = [13]bool{
 			uq.withGroup != nil,
 			uq.withFiles != nil,
 			uq.withDavAccounts != nil,
@@ -703,6 +811,9 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			uq.withTasks != nil,
 			uq.withFsevents != nil,
 			uq.withAuditlogs != nil,
+			uq.withPayments != nil,
+			uq.withPointsLedgers != nil,
+			uq.withGiftcodes != nil,
 			uq.withEntities != nil,
 			uq.withOauthGrants != nil,
 		}
@@ -777,6 +888,27 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := uq.loadAuditlogs(ctx, query, nodes,
 			func(n *User) { n.Edges.Auditlogs = []*AuditLog{} },
 			func(n *User, e *AuditLog) { n.Edges.Auditlogs = append(n.Edges.Auditlogs, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withPayments; query != nil {
+		if err := uq.loadPayments(ctx, query, nodes,
+			func(n *User) { n.Edges.Payments = []*Payment{} },
+			func(n *User, e *Payment) { n.Edges.Payments = append(n.Edges.Payments, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withPointsLedgers; query != nil {
+		if err := uq.loadPointsLedgers(ctx, query, nodes,
+			func(n *User) { n.Edges.PointsLedgers = []*PointsLedger{} },
+			func(n *User, e *PointsLedger) { n.Edges.PointsLedgers = append(n.Edges.PointsLedgers, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withGiftcodes; query != nil {
+		if err := uq.loadGiftcodes(ctx, query, nodes,
+			func(n *User) { n.Edges.Giftcodes = []*GiftCode{} },
+			func(n *User, e *GiftCode) { n.Edges.Giftcodes = append(n.Edges.Giftcodes, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1032,6 +1164,96 @@ func (uq *UserQuery) loadAuditlogs(ctx context.Context, query *AuditLogQuery, no
 		node, ok := nodeids[fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadPayments(ctx context.Context, query *PaymentQuery, nodes []*User, init func(*User), assign func(*User, *Payment)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(payment.FieldUserID)
+	}
+	query.Where(predicate.Payment(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.PaymentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadPointsLedgers(ctx context.Context, query *PointsLedgerQuery, nodes []*User, init func(*User), assign func(*User, *PointsLedger)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(pointsledger.FieldUserID)
+	}
+	query.Where(predicate.PointsLedger(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.PointsLedgersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (uq *UserQuery) loadGiftcodes(ctx context.Context, query *GiftCodeQuery, nodes []*User, init func(*User), assign func(*User, *GiftCode)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(giftcode.FieldUsedBy)
+	}
+	query.Where(predicate.GiftCode(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.GiftcodesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UsedBy
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "used_by" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

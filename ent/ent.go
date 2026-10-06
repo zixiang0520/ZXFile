@@ -19,12 +19,15 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/ent/entity"
 	"github.com/cloudreve/Cloudreve/v4/ent/file"
 	"github.com/cloudreve/Cloudreve/v4/ent/fsevent"
+	"github.com/cloudreve/Cloudreve/v4/ent/giftcode"
 	"github.com/cloudreve/Cloudreve/v4/ent/group"
 	"github.com/cloudreve/Cloudreve/v4/ent/metadata"
 	"github.com/cloudreve/Cloudreve/v4/ent/node"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthclient"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthgrant"
 	"github.com/cloudreve/Cloudreve/v4/ent/passkey"
+	"github.com/cloudreve/Cloudreve/v4/ent/payment"
+	"github.com/cloudreve/Cloudreve/v4/ent/pointsledger"
 	"github.com/cloudreve/Cloudreve/v4/ent/setting"
 	"github.com/cloudreve/Cloudreve/v4/ent/share"
 	"github.com/cloudreve/Cloudreve/v4/ent/storagepolicy"
@@ -97,12 +100,15 @@ func checkColumn(table, column string) error {
 			entity.Table:        entity.ValidColumn,
 			file.Table:          file.ValidColumn,
 			fsevent.Table:       fsevent.ValidColumn,
+			giftcode.Table:      giftcode.ValidColumn,
 			group.Table:         group.ValidColumn,
 			metadata.Table:      metadata.ValidColumn,
 			node.Table:          node.ValidColumn,
 			oauthclient.Table:   oauthclient.ValidColumn,
 			oauthgrant.Table:    oauthgrant.ValidColumn,
 			passkey.Table:       passkey.ValidColumn,
+			payment.Table:       payment.ValidColumn,
+			pointsledger.Table:  pointsledger.ValidColumn,
 			setting.Table:       setting.ValidColumn,
 			share.Table:         share.ValidColumn,
 			storagepolicy.Table: storagepolicy.ValidColumn,

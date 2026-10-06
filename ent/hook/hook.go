@@ -93,6 +93,18 @@ func (f FsEventFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FsEventMutation", m)
 }
 
+// The GiftCodeFunc type is an adapter to allow the use of ordinary
+// function as GiftCode mutator.
+type GiftCodeFunc func(context.Context, *ent.GiftCodeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f GiftCodeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.GiftCodeMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GiftCodeMutation", m)
+}
+
 // The GroupFunc type is an adapter to allow the use of ordinary
 // function as Group mutator.
 type GroupFunc func(context.Context, *ent.GroupMutation) (ent.Value, error)
@@ -163,6 +175,30 @@ func (f PasskeyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PasskeyMutation", m)
+}
+
+// The PaymentFunc type is an adapter to allow the use of ordinary
+// function as Payment mutator.
+type PaymentFunc func(context.Context, *ent.PaymentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PaymentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PaymentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PaymentMutation", m)
+}
+
+// The PointsLedgerFunc type is an adapter to allow the use of ordinary
+// function as PointsLedger mutator.
+type PointsLedgerFunc func(context.Context, *ent.PointsLedgerMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PointsLedgerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PointsLedgerMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PointsLedgerMutation", m)
 }
 
 // The SettingFunc type is an adapter to allow the use of ordinary

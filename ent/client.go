@@ -22,12 +22,15 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/ent/entity"
 	"github.com/cloudreve/Cloudreve/v4/ent/file"
 	"github.com/cloudreve/Cloudreve/v4/ent/fsevent"
+	"github.com/cloudreve/Cloudreve/v4/ent/giftcode"
 	"github.com/cloudreve/Cloudreve/v4/ent/group"
 	"github.com/cloudreve/Cloudreve/v4/ent/metadata"
 	"github.com/cloudreve/Cloudreve/v4/ent/node"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthclient"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthgrant"
 	"github.com/cloudreve/Cloudreve/v4/ent/passkey"
+	"github.com/cloudreve/Cloudreve/v4/ent/payment"
+	"github.com/cloudreve/Cloudreve/v4/ent/pointsledger"
 	"github.com/cloudreve/Cloudreve/v4/ent/setting"
 	"github.com/cloudreve/Cloudreve/v4/ent/share"
 	"github.com/cloudreve/Cloudreve/v4/ent/storagepolicy"
@@ -56,6 +59,8 @@ type Client struct {
 	File *FileClient
 	// FsEvent is the client for interacting with the FsEvent builders.
 	FsEvent *FsEventClient
+	// GiftCode is the client for interacting with the GiftCode builders.
+	GiftCode *GiftCodeClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
 	// Metadata is the client for interacting with the Metadata builders.
@@ -68,6 +73,10 @@ type Client struct {
 	OAuthGrant *OAuthGrantClient
 	// Passkey is the client for interacting with the Passkey builders.
 	Passkey *PasskeyClient
+	// Payment is the client for interacting with the Payment builders.
+	Payment *PaymentClient
+	// PointsLedger is the client for interacting with the PointsLedger builders.
+	PointsLedger *PointsLedgerClient
 	// Setting is the client for interacting with the Setting builders.
 	Setting *SettingClient
 	// Share is the client for interacting with the Share builders.
@@ -96,12 +105,15 @@ func (c *Client) init() {
 	c.Entity = NewEntityClient(c.config)
 	c.File = NewFileClient(c.config)
 	c.FsEvent = NewFsEventClient(c.config)
+	c.GiftCode = NewGiftCodeClient(c.config)
 	c.Group = NewGroupClient(c.config)
 	c.Metadata = NewMetadataClient(c.config)
 	c.Node = NewNodeClient(c.config)
 	c.OAuthClient = NewOAuthClientClient(c.config)
 	c.OAuthGrant = NewOAuthGrantClient(c.config)
 	c.Passkey = NewPasskeyClient(c.config)
+	c.Payment = NewPaymentClient(c.config)
+	c.PointsLedger = NewPointsLedgerClient(c.config)
 	c.Setting = NewSettingClient(c.config)
 	c.Share = NewShareClient(c.config)
 	c.StoragePolicy = NewStoragePolicyClient(c.config)
@@ -206,12 +218,15 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Entity:        NewEntityClient(cfg),
 		File:          NewFileClient(cfg),
 		FsEvent:       NewFsEventClient(cfg),
+		GiftCode:      NewGiftCodeClient(cfg),
 		Group:         NewGroupClient(cfg),
 		Metadata:      NewMetadataClient(cfg),
 		Node:          NewNodeClient(cfg),
 		OAuthClient:   NewOAuthClientClient(cfg),
 		OAuthGrant:    NewOAuthGrantClient(cfg),
 		Passkey:       NewPasskeyClient(cfg),
+		Payment:       NewPaymentClient(cfg),
+		PointsLedger:  NewPointsLedgerClient(cfg),
 		Setting:       NewSettingClient(cfg),
 		Share:         NewShareClient(cfg),
 		StoragePolicy: NewStoragePolicyClient(cfg),
@@ -243,12 +258,15 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Entity:        NewEntityClient(cfg),
 		File:          NewFileClient(cfg),
 		FsEvent:       NewFsEventClient(cfg),
+		GiftCode:      NewGiftCodeClient(cfg),
 		Group:         NewGroupClient(cfg),
 		Metadata:      NewMetadataClient(cfg),
 		Node:          NewNodeClient(cfg),
 		OAuthClient:   NewOAuthClientClient(cfg),
 		OAuthGrant:    NewOAuthGrantClient(cfg),
 		Passkey:       NewPasskeyClient(cfg),
+		Payment:       NewPaymentClient(cfg),
+		PointsLedger:  NewPointsLedgerClient(cfg),
 		Setting:       NewSettingClient(cfg),
 		Share:         NewShareClient(cfg),
 		StoragePolicy: NewStoragePolicyClient(cfg),
@@ -284,8 +302,9 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AbuseReport, c.AuditLog, c.DavAccount, c.DirectLink, c.Entity, c.File,
-		c.FsEvent, c.Group, c.Metadata, c.Node, c.OAuthClient, c.OAuthGrant, c.Passkey,
-		c.Setting, c.Share, c.StoragePolicy, c.Task, c.User,
+		c.FsEvent, c.GiftCode, c.Group, c.Metadata, c.Node, c.OAuthClient,
+		c.OAuthGrant, c.Passkey, c.Payment, c.PointsLedger, c.Setting, c.Share,
+		c.StoragePolicy, c.Task, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -296,8 +315,9 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AbuseReport, c.AuditLog, c.DavAccount, c.DirectLink, c.Entity, c.File,
-		c.FsEvent, c.Group, c.Metadata, c.Node, c.OAuthClient, c.OAuthGrant, c.Passkey,
-		c.Setting, c.Share, c.StoragePolicy, c.Task, c.User,
+		c.FsEvent, c.GiftCode, c.Group, c.Metadata, c.Node, c.OAuthClient,
+		c.OAuthGrant, c.Passkey, c.Payment, c.PointsLedger, c.Setting, c.Share,
+		c.StoragePolicy, c.Task, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -320,6 +340,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.File.mutate(ctx, m)
 	case *FsEventMutation:
 		return c.FsEvent.mutate(ctx, m)
+	case *GiftCodeMutation:
+		return c.GiftCode.mutate(ctx, m)
 	case *GroupMutation:
 		return c.Group.mutate(ctx, m)
 	case *MetadataMutation:
@@ -332,6 +354,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.OAuthGrant.mutate(ctx, m)
 	case *PasskeyMutation:
 		return c.Passkey.mutate(ctx, m)
+	case *PaymentMutation:
+		return c.Payment.mutate(ctx, m)
+	case *PointsLedgerMutation:
+		return c.PointsLedger.mutate(ctx, m)
 	case *SettingMutation:
 		return c.Setting.mutate(ctx, m)
 	case *ShareMutation:
@@ -1531,6 +1557,157 @@ func (c *FsEventClient) mutate(ctx context.Context, m *FsEventMutation) (Value, 
 	}
 }
 
+// GiftCodeClient is a client for the GiftCode schema.
+type GiftCodeClient struct {
+	config
+}
+
+// NewGiftCodeClient returns a client for the GiftCode from the given config.
+func NewGiftCodeClient(c config) *GiftCodeClient {
+	return &GiftCodeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `giftcode.Hooks(f(g(h())))`.
+func (c *GiftCodeClient) Use(hooks ...Hook) {
+	c.hooks.GiftCode = append(c.hooks.GiftCode, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `giftcode.Intercept(f(g(h())))`.
+func (c *GiftCodeClient) Intercept(interceptors ...Interceptor) {
+	c.inters.GiftCode = append(c.inters.GiftCode, interceptors...)
+}
+
+// Create returns a builder for creating a GiftCode entity.
+func (c *GiftCodeClient) Create() *GiftCodeCreate {
+	mutation := newGiftCodeMutation(c.config, OpCreate)
+	return &GiftCodeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of GiftCode entities.
+func (c *GiftCodeClient) CreateBulk(builders ...*GiftCodeCreate) *GiftCodeCreateBulk {
+	return &GiftCodeCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *GiftCodeClient) MapCreateBulk(slice any, setFunc func(*GiftCodeCreate, int)) *GiftCodeCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &GiftCodeCreateBulk{err: fmt.Errorf("calling to GiftCodeClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*GiftCodeCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &GiftCodeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for GiftCode.
+func (c *GiftCodeClient) Update() *GiftCodeUpdate {
+	mutation := newGiftCodeMutation(c.config, OpUpdate)
+	return &GiftCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *GiftCodeClient) UpdateOne(gc *GiftCode) *GiftCodeUpdateOne {
+	mutation := newGiftCodeMutation(c.config, OpUpdateOne, withGiftCode(gc))
+	return &GiftCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *GiftCodeClient) UpdateOneID(id int) *GiftCodeUpdateOne {
+	mutation := newGiftCodeMutation(c.config, OpUpdateOne, withGiftCodeID(id))
+	return &GiftCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for GiftCode.
+func (c *GiftCodeClient) Delete() *GiftCodeDelete {
+	mutation := newGiftCodeMutation(c.config, OpDelete)
+	return &GiftCodeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *GiftCodeClient) DeleteOne(gc *GiftCode) *GiftCodeDeleteOne {
+	return c.DeleteOneID(gc.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *GiftCodeClient) DeleteOneID(id int) *GiftCodeDeleteOne {
+	builder := c.Delete().Where(giftcode.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &GiftCodeDeleteOne{builder}
+}
+
+// Query returns a query builder for GiftCode.
+func (c *GiftCodeClient) Query() *GiftCodeQuery {
+	return &GiftCodeQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeGiftCode},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a GiftCode entity by its id.
+func (c *GiftCodeClient) Get(ctx context.Context, id int) (*GiftCode, error) {
+	return c.Query().Where(giftcode.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *GiftCodeClient) GetX(ctx context.Context, id int) *GiftCode {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a GiftCode.
+func (c *GiftCodeClient) QueryUser(gc *GiftCode) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := gc.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(giftcode.Table, giftcode.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, giftcode.UserTable, giftcode.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(gc.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *GiftCodeClient) Hooks() []Hook {
+	hooks := c.hooks.GiftCode
+	return append(hooks[:len(hooks):len(hooks)], giftcode.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *GiftCodeClient) Interceptors() []Interceptor {
+	inters := c.inters.GiftCode
+	return append(inters[:len(inters):len(inters)], giftcode.Interceptors[:]...)
+}
+
+func (c *GiftCodeClient) mutate(ctx context.Context, m *GiftCodeMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&GiftCodeCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&GiftCodeUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&GiftCodeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&GiftCodeDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown GiftCode mutation op: %q", m.Op())
+	}
+}
+
 // GroupClient is a client for the Group schema.
 type GroupClient struct {
 	config
@@ -2469,6 +2646,324 @@ func (c *PasskeyClient) mutate(ctx context.Context, m *PasskeyMutation) (Value, 
 	}
 }
 
+// PaymentClient is a client for the Payment schema.
+type PaymentClient struct {
+	config
+}
+
+// NewPaymentClient returns a client for the Payment from the given config.
+func NewPaymentClient(c config) *PaymentClient {
+	return &PaymentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `payment.Hooks(f(g(h())))`.
+func (c *PaymentClient) Use(hooks ...Hook) {
+	c.hooks.Payment = append(c.hooks.Payment, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `payment.Intercept(f(g(h())))`.
+func (c *PaymentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Payment = append(c.inters.Payment, interceptors...)
+}
+
+// Create returns a builder for creating a Payment entity.
+func (c *PaymentClient) Create() *PaymentCreate {
+	mutation := newPaymentMutation(c.config, OpCreate)
+	return &PaymentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Payment entities.
+func (c *PaymentClient) CreateBulk(builders ...*PaymentCreate) *PaymentCreateBulk {
+	return &PaymentCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PaymentClient) MapCreateBulk(slice any, setFunc func(*PaymentCreate, int)) *PaymentCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PaymentCreateBulk{err: fmt.Errorf("calling to PaymentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PaymentCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PaymentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Payment.
+func (c *PaymentClient) Update() *PaymentUpdate {
+	mutation := newPaymentMutation(c.config, OpUpdate)
+	return &PaymentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PaymentClient) UpdateOne(pa *Payment) *PaymentUpdateOne {
+	mutation := newPaymentMutation(c.config, OpUpdateOne, withPayment(pa))
+	return &PaymentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PaymentClient) UpdateOneID(id int) *PaymentUpdateOne {
+	mutation := newPaymentMutation(c.config, OpUpdateOne, withPaymentID(id))
+	return &PaymentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Payment.
+func (c *PaymentClient) Delete() *PaymentDelete {
+	mutation := newPaymentMutation(c.config, OpDelete)
+	return &PaymentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PaymentClient) DeleteOne(pa *Payment) *PaymentDeleteOne {
+	return c.DeleteOneID(pa.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PaymentClient) DeleteOneID(id int) *PaymentDeleteOne {
+	builder := c.Delete().Where(payment.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PaymentDeleteOne{builder}
+}
+
+// Query returns a query builder for Payment.
+func (c *PaymentClient) Query() *PaymentQuery {
+	return &PaymentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePayment},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Payment entity by its id.
+func (c *PaymentClient) Get(ctx context.Context, id int) (*Payment, error) {
+	return c.Query().Where(payment.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PaymentClient) GetX(ctx context.Context, id int) *Payment {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a Payment.
+func (c *PaymentClient) QueryUser(pa *Payment) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(payment.Table, payment.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, payment.UserTable, payment.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PaymentClient) Hooks() []Hook {
+	hooks := c.hooks.Payment
+	return append(hooks[:len(hooks):len(hooks)], payment.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *PaymentClient) Interceptors() []Interceptor {
+	inters := c.inters.Payment
+	return append(inters[:len(inters):len(inters)], payment.Interceptors[:]...)
+}
+
+func (c *PaymentClient) mutate(ctx context.Context, m *PaymentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PaymentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PaymentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PaymentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PaymentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Payment mutation op: %q", m.Op())
+	}
+}
+
+// PointsLedgerClient is a client for the PointsLedger schema.
+type PointsLedgerClient struct {
+	config
+}
+
+// NewPointsLedgerClient returns a client for the PointsLedger from the given config.
+func NewPointsLedgerClient(c config) *PointsLedgerClient {
+	return &PointsLedgerClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `pointsledger.Hooks(f(g(h())))`.
+func (c *PointsLedgerClient) Use(hooks ...Hook) {
+	c.hooks.PointsLedger = append(c.hooks.PointsLedger, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `pointsledger.Intercept(f(g(h())))`.
+func (c *PointsLedgerClient) Intercept(interceptors ...Interceptor) {
+	c.inters.PointsLedger = append(c.inters.PointsLedger, interceptors...)
+}
+
+// Create returns a builder for creating a PointsLedger entity.
+func (c *PointsLedgerClient) Create() *PointsLedgerCreate {
+	mutation := newPointsLedgerMutation(c.config, OpCreate)
+	return &PointsLedgerCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of PointsLedger entities.
+func (c *PointsLedgerClient) CreateBulk(builders ...*PointsLedgerCreate) *PointsLedgerCreateBulk {
+	return &PointsLedgerCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PointsLedgerClient) MapCreateBulk(slice any, setFunc func(*PointsLedgerCreate, int)) *PointsLedgerCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PointsLedgerCreateBulk{err: fmt.Errorf("calling to PointsLedgerClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PointsLedgerCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PointsLedgerCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for PointsLedger.
+func (c *PointsLedgerClient) Update() *PointsLedgerUpdate {
+	mutation := newPointsLedgerMutation(c.config, OpUpdate)
+	return &PointsLedgerUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PointsLedgerClient) UpdateOne(pl *PointsLedger) *PointsLedgerUpdateOne {
+	mutation := newPointsLedgerMutation(c.config, OpUpdateOne, withPointsLedger(pl))
+	return &PointsLedgerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PointsLedgerClient) UpdateOneID(id int) *PointsLedgerUpdateOne {
+	mutation := newPointsLedgerMutation(c.config, OpUpdateOne, withPointsLedgerID(id))
+	return &PointsLedgerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for PointsLedger.
+func (c *PointsLedgerClient) Delete() *PointsLedgerDelete {
+	mutation := newPointsLedgerMutation(c.config, OpDelete)
+	return &PointsLedgerDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PointsLedgerClient) DeleteOne(pl *PointsLedger) *PointsLedgerDeleteOne {
+	return c.DeleteOneID(pl.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PointsLedgerClient) DeleteOneID(id int) *PointsLedgerDeleteOne {
+	builder := c.Delete().Where(pointsledger.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PointsLedgerDeleteOne{builder}
+}
+
+// Query returns a query builder for PointsLedger.
+func (c *PointsLedgerClient) Query() *PointsLedgerQuery {
+	return &PointsLedgerQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePointsLedger},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a PointsLedger entity by its id.
+func (c *PointsLedgerClient) Get(ctx context.Context, id int) (*PointsLedger, error) {
+	return c.Query().Where(pointsledger.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PointsLedgerClient) GetX(ctx context.Context, id int) *PointsLedger {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryUser queries the user edge of a PointsLedger.
+func (c *PointsLedgerClient) QueryUser(pl *PointsLedger) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pl.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(pointsledger.Table, pointsledger.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, pointsledger.UserTable, pointsledger.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(pl.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPayment queries the payment edge of a PointsLedger.
+func (c *PointsLedgerClient) QueryPayment(pl *PointsLedger) *PaymentQuery {
+	query := (&PaymentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := pl.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(pointsledger.Table, pointsledger.FieldID, id),
+			sqlgraph.To(payment.Table, payment.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, pointsledger.PaymentTable, pointsledger.PaymentColumn),
+		)
+		fromV = sqlgraph.Neighbors(pl.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PointsLedgerClient) Hooks() []Hook {
+	hooks := c.hooks.PointsLedger
+	return append(hooks[:len(hooks):len(hooks)], pointsledger.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *PointsLedgerClient) Interceptors() []Interceptor {
+	inters := c.inters.PointsLedger
+	return append(inters[:len(inters):len(inters)], pointsledger.Interceptors[:]...)
+}
+
+func (c *PointsLedgerClient) mutate(ctx context.Context, m *PointsLedgerMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PointsLedgerCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PointsLedgerUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PointsLedgerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PointsLedgerDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown PointsLedger mutation op: %q", m.Op())
+	}
+}
+
 // SettingClient is a client for the Setting schema.
 type SettingClient struct {
 	config
@@ -3357,6 +3852,54 @@ func (c *UserClient) QueryAuditlogs(u *User) *AuditLogQuery {
 	return query
 }
 
+// QueryPayments queries the payments edge of a User.
+func (c *UserClient) QueryPayments(u *User) *PaymentQuery {
+	query := (&PaymentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(payment.Table, payment.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PaymentsTable, user.PaymentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryPointsLedgers queries the points_ledgers edge of a User.
+func (c *UserClient) QueryPointsLedgers(u *User) *PointsLedgerQuery {
+	query := (&PointsLedgerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(pointsledger.Table, pointsledger.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PointsLedgersTable, user.PointsLedgersColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryGiftcodes queries the giftcodes edge of a User.
+func (c *UserClient) QueryGiftcodes(u *User) *GiftCodeQuery {
+	query := (&GiftCodeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(giftcode.Table, giftcode.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.GiftcodesTable, user.GiftcodesColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryEntities queries the entities edge of a User.
 func (c *UserClient) QueryEntities(u *User) *EntityQuery {
 	query := (&EntityClient{config: c.config}).Query()
@@ -3419,14 +3962,14 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AbuseReport, AuditLog, DavAccount, DirectLink, Entity, File, FsEvent, Group,
-		Metadata, Node, OAuthClient, OAuthGrant, Passkey, Setting, Share,
-		StoragePolicy, Task, User []ent.Hook
+		AbuseReport, AuditLog, DavAccount, DirectLink, Entity, File, FsEvent, GiftCode,
+		Group, Metadata, Node, OAuthClient, OAuthGrant, Passkey, Payment, PointsLedger,
+		Setting, Share, StoragePolicy, Task, User []ent.Hook
 	}
 	inters struct {
-		AbuseReport, AuditLog, DavAccount, DirectLink, Entity, File, FsEvent, Group,
-		Metadata, Node, OAuthClient, OAuthGrant, Passkey, Setting, Share,
-		StoragePolicy, Task, User []ent.Interceptor
+		AbuseReport, AuditLog, DavAccount, DirectLink, Entity, File, FsEvent, GiftCode,
+		Group, Metadata, Node, OAuthClient, OAuthGrant, Passkey, Payment, PointsLedger,
+		Setting, Share, StoragePolicy, Task, User []ent.Interceptor
 	}
 )
 

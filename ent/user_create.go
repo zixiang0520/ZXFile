@@ -16,9 +16,12 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/ent/entity"
 	"github.com/cloudreve/Cloudreve/v4/ent/file"
 	"github.com/cloudreve/Cloudreve/v4/ent/fsevent"
+	"github.com/cloudreve/Cloudreve/v4/ent/giftcode"
 	"github.com/cloudreve/Cloudreve/v4/ent/group"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthgrant"
 	"github.com/cloudreve/Cloudreve/v4/ent/passkey"
+	"github.com/cloudreve/Cloudreve/v4/ent/payment"
+	"github.com/cloudreve/Cloudreve/v4/ent/pointsledger"
 	"github.com/cloudreve/Cloudreve/v4/ent/share"
 	"github.com/cloudreve/Cloudreve/v4/ent/task"
 	"github.com/cloudreve/Cloudreve/v4/ent/user"
@@ -283,6 +286,51 @@ func (uc *UserCreate) AddAuditlogs(a ...*AuditLog) *UserCreate {
 		ids[i] = a[i].ID
 	}
 	return uc.AddAuditlogIDs(ids...)
+}
+
+// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
+func (uc *UserCreate) AddPaymentIDs(ids ...int) *UserCreate {
+	uc.mutation.AddPaymentIDs(ids...)
+	return uc
+}
+
+// AddPayments adds the "payments" edges to the Payment entity.
+func (uc *UserCreate) AddPayments(p ...*Payment) *UserCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uc.AddPaymentIDs(ids...)
+}
+
+// AddPointsLedgerIDs adds the "points_ledgers" edge to the PointsLedger entity by IDs.
+func (uc *UserCreate) AddPointsLedgerIDs(ids ...int) *UserCreate {
+	uc.mutation.AddPointsLedgerIDs(ids...)
+	return uc
+}
+
+// AddPointsLedgers adds the "points_ledgers" edges to the PointsLedger entity.
+func (uc *UserCreate) AddPointsLedgers(p ...*PointsLedger) *UserCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uc.AddPointsLedgerIDs(ids...)
+}
+
+// AddGiftcodeIDs adds the "giftcodes" edge to the GiftCode entity by IDs.
+func (uc *UserCreate) AddGiftcodeIDs(ids ...int) *UserCreate {
+	uc.mutation.AddGiftcodeIDs(ids...)
+	return uc
+}
+
+// AddGiftcodes adds the "giftcodes" edges to the GiftCode entity.
+func (uc *UserCreate) AddGiftcodes(g ...*GiftCode) *UserCreate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return uc.AddGiftcodeIDs(ids...)
 }
 
 // AddEntityIDs adds the "entities" edge to the Entity entity by IDs.
@@ -622,6 +670,54 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(auditlog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.PaymentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentsTable,
+			Columns: []string{user.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.PointsLedgersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PointsLedgersTable,
+			Columns: []string{user.PointsLedgersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pointsledger.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.GiftcodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.GiftcodesTable,
+			Columns: []string{user.GiftcodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(giftcode.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

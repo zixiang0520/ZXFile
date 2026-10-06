@@ -22,6 +22,7 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/service/oauth"
 	"github.com/cloudreve/Cloudreve/v4/service/setting"
 	sharesvc "github.com/cloudreve/Cloudreve/v4/service/share"
+	vassvc "github.com/cloudreve/Cloudreve/v4/service/vas"
 	usersvc "github.com/cloudreve/Cloudreve/v4/service/user"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
@@ -254,7 +255,21 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 				controllers.AnonymousPermLink(true))
 		}
 
-		// Submit an abuse report (Pro-compatible /site/abuse, anonymous allowed)
+		// VAS: payment notify callbacks (no auth, signature-verified)
+		v4.GET("vas/payment/status",
+			controllers.VASPaymentStatus,
+		)
+		v4.POST("payment/notify/epay/:pid",
+			controllers.VASEpayNotify,
+		)
+		v4.GET("payment/notify/epay/:pid",
+			controllers.VASEpayNotify,
+		)
+		v4.GET("payment/notify/custom/:pid",
+			controllers.VASCustomNotify,
+		)
+		// VAS: anonymous purchase flow helpers
+		// Submit an abuse report for a share (anonymous allowed)
 		v4.POST("site/abuse",
 			controllers.FromJSON[sharesvc.AbuseReportSubmitService](sharesvc.AbuseReportSubmitParamCtx{}),
 			controllers.SubmitAbuseReport,
@@ -906,6 +921,32 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 			admin := auth.Group("admin", middleware.IsAdmin())
 			admin.Use(middleware.RequiredScopes(types.ScopeAdminRead))
 			{
+				// VAS: shop & payments (Pro-compatible)
+				vasGroup := auth.Group("vas")
+				vasGroup.Use(middleware.RequiredScopes(types.ScopeVASRead))
+				{
+					vasGroup.PUT("payment",
+						middleware.RequiredScopes(types.ScopeVASWrite),
+						controllers.VASCreatePayment,
+					)
+					vasGroup.GET("payment/status/:order/:channel",
+						controllers.VASPaymentStatus,
+					)
+					vasGroup.GET("skus",
+						controllers.VASListSKUs,
+					)
+					vasGroup.POST("giftcode/redeem",
+						middleware.RequiredScopes(types.ScopeVASWrite),
+						controllers.VASRedeemGiftCode,
+					)
+					vasGroup.GET("points",
+						controllers.VASGetPoints,
+					)
+				}
+				// User payments (Pro-compatible)
+				auth.GET("user/payments",
+					controllers.VASListMyPayments,
+				)
 				// Audit logs (Pro "Events" reimplemented)
 				admin.POST("audit",
 					controllers.FromJSON[adminsvc.AuditListService](adminsvc.AuditListParamCtx{}),
@@ -933,6 +974,46 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 						controllers.AdminAuditCleanup,
 					)
 				}
+				// Payments management (Pro-compatible)
+				payment := admin.Group("payment")
+				{
+					payment.POST("",
+						controllers.VASAdminListPayments,
+					)
+					payment.POST("batch/delete",
+						middleware.RequiredScopes(types.ScopeAdminWrite),
+						controllers.FromJSON[vassvc.AdminDeletePaymentsService](vassvc.AdminDeletePaymentsParamCtx{}),
+						controllers.VASAdminDeletePayments,
+					)
+				}
+				// VAS administration: SKUs / providers / gift codes
+				admin.GET("vas/skus",
+					controllers.VASListSKUs,
+				)
+				admin.POST("vas/skus",
+					middleware.RequiredScopes(types.ScopeAdminWrite),
+					controllers.FromJSON[vassvc.SaveSKUsService](vassvc.SaveSKUsParamCtx{}),
+					controllers.VASSaveSKUs,
+				)
+				admin.GET("vas/providers",
+					controllers.VASListProviders,
+				)
+				admin.POST("vas/providers",
+					middleware.RequiredScopes(types.ScopeAdminWrite),
+					controllers.FromJSON[vassvc.SaveProvidersService](vassvc.SaveProvidersParamCtx{}),
+					controllers.VASSaveProviders,
+				)
+				admin.POST("vas/giftcode",
+					controllers.VASAdminCreateGiftCodes,
+				)
+				admin.GET("vas/giftcode",
+					controllers.VASAdminListGiftCodes,
+				)
+				admin.POST("vas/giftcode/batch/delete",
+					middleware.RequiredScopes(types.ScopeAdminWrite),
+					controllers.FromJSON[vassvc.AdminDeleteGiftCodesService](vassvc.AdminDeleteGiftCodesParamCtx{}),
+					controllers.VASAdminDeleteGiftCodes,
+				)
 				// Abuse reports (Pro feature reimplemented)
 				abuse := admin.Group("abuse")
 				{

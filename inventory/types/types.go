@@ -17,6 +17,10 @@ type (
 		DisableViewSync     bool                     `json:"disable_view_sync,omitempty"`
 		FsViewMap           map[string]ExplorerView  `json:"fs_view_map,omitempty"`
 		ShareLinksInProfile ShareLinksInProfileLevel `json:"share_links_in_profile,omitempty"`
+		// ExtraStorage is purchased capacity (bytes) from storage packs.
+		ExtraStorage int64 `json:"extra_storage,omitempty"`
+		// Points balance cache; the points ledger table is the source of truth.
+		Points int64 `json:"points,omitempty"`
 	}
 
 	ShareLinksInProfileLevel string
@@ -433,6 +437,8 @@ const (
 	ScopeWorkflowRead          = "Workflow.Read"
 	ScopeWorkflowWrite         = "Workflow.Write"
 	ScopeAdminRead             = "Admin.Read"
+	ScopeVASRead              = "VAS.Read"
+	ScopeVASWrite             = "VAS.Write"
 	ScopeAdminWrite            = "Admin.Write"
 	ScopeFilesRead             = "Files.Read"
 	ScopeFilesWrite            = "Files.Write"

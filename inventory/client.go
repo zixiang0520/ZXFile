@@ -31,6 +31,12 @@ const (
 func InitializeDBClient(l logging.Logger,
 	client *ent.Client, kv cache.Driver, requiredDbVersion string) (*ent.Client, error) {
 	ctx := context.WithValue(context.Background(), logging.LoggerCtx{}, l)
+	// Always run the idempotent schema sync first: custom builds iterate on
+	// schemas without bumping the DB version marker, and this keeps new
+	// tables/columns in sync on every startup.
+	if err := client.Schema.Create(ctx); err != nil {
+		return nil, fmt.Errorf("failed to sync database schema: %w", err)
+	}
 	if needMigration(client, ctx, requiredDbVersion) {
 		// Run the auto migration tool.
 		if err := migrate(l, client, ctx, kv, requiredDbVersion); err != nil {

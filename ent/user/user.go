@@ -57,6 +57,12 @@ const (
 	EdgeFsevents = "fsevents"
 	// EdgeAuditlogs holds the string denoting the auditlogs edge name in mutations.
 	EdgeAuditlogs = "auditlogs"
+	// EdgePayments holds the string denoting the payments edge name in mutations.
+	EdgePayments = "payments"
+	// EdgePointsLedgers holds the string denoting the points_ledgers edge name in mutations.
+	EdgePointsLedgers = "points_ledgers"
+	// EdgeGiftcodes holds the string denoting the giftcodes edge name in mutations.
+	EdgeGiftcodes = "giftcodes"
 	// EdgeEntities holds the string denoting the entities edge name in mutations.
 	EdgeEntities = "entities"
 	// EdgeOauthGrants holds the string denoting the oauth_grants edge name in mutations.
@@ -119,6 +125,27 @@ const (
 	AuditlogsInverseTable = "audit_logs"
 	// AuditlogsColumn is the table column denoting the auditlogs relation/edge.
 	AuditlogsColumn = "user_id"
+	// PaymentsTable is the table that holds the payments relation/edge.
+	PaymentsTable = "payments"
+	// PaymentsInverseTable is the table name for the Payment entity.
+	// It exists in this package in order to avoid circular dependency with the "payment" package.
+	PaymentsInverseTable = "payments"
+	// PaymentsColumn is the table column denoting the payments relation/edge.
+	PaymentsColumn = "user_id"
+	// PointsLedgersTable is the table that holds the points_ledgers relation/edge.
+	PointsLedgersTable = "points_ledgers"
+	// PointsLedgersInverseTable is the table name for the PointsLedger entity.
+	// It exists in this package in order to avoid circular dependency with the "pointsledger" package.
+	PointsLedgersInverseTable = "points_ledgers"
+	// PointsLedgersColumn is the table column denoting the points_ledgers relation/edge.
+	PointsLedgersColumn = "user_id"
+	// GiftcodesTable is the table that holds the giftcodes relation/edge.
+	GiftcodesTable = "gift_codes"
+	// GiftcodesInverseTable is the table name for the GiftCode entity.
+	// It exists in this package in order to avoid circular dependency with the "giftcode" package.
+	GiftcodesInverseTable = "gift_codes"
+	// GiftcodesColumn is the table column denoting the giftcodes relation/edge.
+	GiftcodesColumn = "used_by"
 	// EntitiesTable is the table that holds the entities relation/edge.
 	EntitiesTable = "entities"
 	// EntitiesInverseTable is the table name for the Entity entity.
@@ -382,6 +409,48 @@ func ByAuditlogs(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByPaymentsCount orders the results by payments count.
+func ByPaymentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPaymentsStep(), opts...)
+	}
+}
+
+// ByPayments orders the results by payments terms.
+func ByPayments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPaymentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByPointsLedgersCount orders the results by points_ledgers count.
+func ByPointsLedgersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPointsLedgersStep(), opts...)
+	}
+}
+
+// ByPointsLedgers orders the results by points_ledgers terms.
+func ByPointsLedgers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPointsLedgersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByGiftcodesCount orders the results by giftcodes count.
+func ByGiftcodesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGiftcodesStep(), opts...)
+	}
+}
+
+// ByGiftcodes orders the results by giftcodes terms.
+func ByGiftcodes(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGiftcodesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByEntitiesCount orders the results by entities count.
 func ByEntitiesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -463,6 +532,27 @@ func newAuditlogsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AuditlogsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, AuditlogsTable, AuditlogsColumn),
+	)
+}
+func newPaymentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PaymentsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PaymentsTable, PaymentsColumn),
+	)
+}
+func newPointsLedgersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PointsLedgersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, PointsLedgersTable, PointsLedgersColumn),
+	)
+}
+func newGiftcodesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GiftcodesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, GiftcodesTable, GiftcodesColumn),
 	)
 }
 func newEntitiesStep() *sqlgraph.Step {

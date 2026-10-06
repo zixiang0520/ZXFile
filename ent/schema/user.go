@@ -53,6 +53,9 @@ func (User) Edges() []ent.Edge {
 		edge.To("tasks", Task.Type),
 		edge.To("fsevents", FsEvent.Type),
 		edge.To("auditlogs", AuditLog.Type),
+		edge.To("payments", Payment.Type),
+		edge.To("points_ledgers", PointsLedger.Type),
+		edge.To("giftcodes", GiftCode.Type),
 		edge.To("entities", Entity.Type),
 		edge.To("oauth_grants", OAuthGrant.Type),
 	}

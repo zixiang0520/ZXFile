@@ -28,6 +28,8 @@ type Tx struct {
 	File *FileClient
 	// FsEvent is the client for interacting with the FsEvent builders.
 	FsEvent *FsEventClient
+	// GiftCode is the client for interacting with the GiftCode builders.
+	GiftCode *GiftCodeClient
 	// Group is the client for interacting with the Group builders.
 	Group *GroupClient
 	// Metadata is the client for interacting with the Metadata builders.
@@ -40,6 +42,10 @@ type Tx struct {
 	OAuthGrant *OAuthGrantClient
 	// Passkey is the client for interacting with the Passkey builders.
 	Passkey *PasskeyClient
+	// Payment is the client for interacting with the Payment builders.
+	Payment *PaymentClient
+	// PointsLedger is the client for interacting with the PointsLedger builders.
+	PointsLedger *PointsLedgerClient
 	// Setting is the client for interacting with the Setting builders.
 	Setting *SettingClient
 	// Share is the client for interacting with the Share builders.
@@ -188,12 +194,15 @@ func (tx *Tx) init() {
 	tx.Entity = NewEntityClient(tx.config)
 	tx.File = NewFileClient(tx.config)
 	tx.FsEvent = NewFsEventClient(tx.config)
+	tx.GiftCode = NewGiftCodeClient(tx.config)
 	tx.Group = NewGroupClient(tx.config)
 	tx.Metadata = NewMetadataClient(tx.config)
 	tx.Node = NewNodeClient(tx.config)
 	tx.OAuthClient = NewOAuthClientClient(tx.config)
 	tx.OAuthGrant = NewOAuthGrantClient(tx.config)
 	tx.Passkey = NewPasskeyClient(tx.config)
+	tx.Payment = NewPaymentClient(tx.config)
+	tx.PointsLedger = NewPointsLedgerClient(tx.config)
 	tx.Setting = NewSettingClient(tx.config)
 	tx.Share = NewShareClient(tx.config)
 	tx.StoragePolicy = NewStoragePolicyClient(tx.config)

@@ -16,9 +16,12 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/ent/entity"
 	"github.com/cloudreve/Cloudreve/v4/ent/file"
 	"github.com/cloudreve/Cloudreve/v4/ent/fsevent"
+	"github.com/cloudreve/Cloudreve/v4/ent/giftcode"
 	"github.com/cloudreve/Cloudreve/v4/ent/group"
 	"github.com/cloudreve/Cloudreve/v4/ent/oauthgrant"
 	"github.com/cloudreve/Cloudreve/v4/ent/passkey"
+	"github.com/cloudreve/Cloudreve/v4/ent/payment"
+	"github.com/cloudreve/Cloudreve/v4/ent/pointsledger"
 	"github.com/cloudreve/Cloudreve/v4/ent/predicate"
 	"github.com/cloudreve/Cloudreve/v4/ent/share"
 	"github.com/cloudreve/Cloudreve/v4/ent/task"
@@ -330,6 +333,51 @@ func (uu *UserUpdate) AddAuditlogs(a ...*AuditLog) *UserUpdate {
 	return uu.AddAuditlogIDs(ids...)
 }
 
+// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
+func (uu *UserUpdate) AddPaymentIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddPaymentIDs(ids...)
+	return uu
+}
+
+// AddPayments adds the "payments" edges to the Payment entity.
+func (uu *UserUpdate) AddPayments(p ...*Payment) *UserUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.AddPaymentIDs(ids...)
+}
+
+// AddPointsLedgerIDs adds the "points_ledgers" edge to the PointsLedger entity by IDs.
+func (uu *UserUpdate) AddPointsLedgerIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddPointsLedgerIDs(ids...)
+	return uu
+}
+
+// AddPointsLedgers adds the "points_ledgers" edges to the PointsLedger entity.
+func (uu *UserUpdate) AddPointsLedgers(p ...*PointsLedger) *UserUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.AddPointsLedgerIDs(ids...)
+}
+
+// AddGiftcodeIDs adds the "giftcodes" edge to the GiftCode entity by IDs.
+func (uu *UserUpdate) AddGiftcodeIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddGiftcodeIDs(ids...)
+	return uu
+}
+
+// AddGiftcodes adds the "giftcodes" edges to the GiftCode entity.
+func (uu *UserUpdate) AddGiftcodes(g ...*GiftCode) *UserUpdate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return uu.AddGiftcodeIDs(ids...)
+}
+
 // AddEntityIDs adds the "entities" edge to the Entity entity by IDs.
 func (uu *UserUpdate) AddEntityIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddEntityIDs(ids...)
@@ -516,6 +564,69 @@ func (uu *UserUpdate) RemoveAuditlogs(a ...*AuditLog) *UserUpdate {
 		ids[i] = a[i].ID
 	}
 	return uu.RemoveAuditlogIDs(ids...)
+}
+
+// ClearPayments clears all "payments" edges to the Payment entity.
+func (uu *UserUpdate) ClearPayments() *UserUpdate {
+	uu.mutation.ClearPayments()
+	return uu
+}
+
+// RemovePaymentIDs removes the "payments" edge to Payment entities by IDs.
+func (uu *UserUpdate) RemovePaymentIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemovePaymentIDs(ids...)
+	return uu
+}
+
+// RemovePayments removes "payments" edges to Payment entities.
+func (uu *UserUpdate) RemovePayments(p ...*Payment) *UserUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.RemovePaymentIDs(ids...)
+}
+
+// ClearPointsLedgers clears all "points_ledgers" edges to the PointsLedger entity.
+func (uu *UserUpdate) ClearPointsLedgers() *UserUpdate {
+	uu.mutation.ClearPointsLedgers()
+	return uu
+}
+
+// RemovePointsLedgerIDs removes the "points_ledgers" edge to PointsLedger entities by IDs.
+func (uu *UserUpdate) RemovePointsLedgerIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemovePointsLedgerIDs(ids...)
+	return uu
+}
+
+// RemovePointsLedgers removes "points_ledgers" edges to PointsLedger entities.
+func (uu *UserUpdate) RemovePointsLedgers(p ...*PointsLedger) *UserUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.RemovePointsLedgerIDs(ids...)
+}
+
+// ClearGiftcodes clears all "giftcodes" edges to the GiftCode entity.
+func (uu *UserUpdate) ClearGiftcodes() *UserUpdate {
+	uu.mutation.ClearGiftcodes()
+	return uu
+}
+
+// RemoveGiftcodeIDs removes the "giftcodes" edge to GiftCode entities by IDs.
+func (uu *UserUpdate) RemoveGiftcodeIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemoveGiftcodeIDs(ids...)
+	return uu
+}
+
+// RemoveGiftcodes removes "giftcodes" edges to GiftCode entities.
+func (uu *UserUpdate) RemoveGiftcodes(g ...*GiftCode) *UserUpdate {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return uu.RemoveGiftcodeIDs(ids...)
 }
 
 // ClearEntities clears all "entities" edges to the Entity entity.
@@ -1029,6 +1140,141 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.PaymentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentsTable,
+			Columns: []string{user.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedPaymentsIDs(); len(nodes) > 0 && !uu.mutation.PaymentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentsTable,
+			Columns: []string{user.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.PaymentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentsTable,
+			Columns: []string{user.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.PointsLedgersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PointsLedgersTable,
+			Columns: []string{user.PointsLedgersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pointsledger.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedPointsLedgersIDs(); len(nodes) > 0 && !uu.mutation.PointsLedgersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PointsLedgersTable,
+			Columns: []string{user.PointsLedgersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pointsledger.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.PointsLedgersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PointsLedgersTable,
+			Columns: []string{user.PointsLedgersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pointsledger.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.GiftcodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.GiftcodesTable,
+			Columns: []string{user.GiftcodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(giftcode.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedGiftcodesIDs(); len(nodes) > 0 && !uu.mutation.GiftcodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.GiftcodesTable,
+			Columns: []string{user.GiftcodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(giftcode.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.GiftcodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.GiftcodesTable,
+			Columns: []string{user.GiftcodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(giftcode.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if uu.mutation.EntitiesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -1430,6 +1676,51 @@ func (uuo *UserUpdateOne) AddAuditlogs(a ...*AuditLog) *UserUpdateOne {
 	return uuo.AddAuditlogIDs(ids...)
 }
 
+// AddPaymentIDs adds the "payments" edge to the Payment entity by IDs.
+func (uuo *UserUpdateOne) AddPaymentIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddPaymentIDs(ids...)
+	return uuo
+}
+
+// AddPayments adds the "payments" edges to the Payment entity.
+func (uuo *UserUpdateOne) AddPayments(p ...*Payment) *UserUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.AddPaymentIDs(ids...)
+}
+
+// AddPointsLedgerIDs adds the "points_ledgers" edge to the PointsLedger entity by IDs.
+func (uuo *UserUpdateOne) AddPointsLedgerIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddPointsLedgerIDs(ids...)
+	return uuo
+}
+
+// AddPointsLedgers adds the "points_ledgers" edges to the PointsLedger entity.
+func (uuo *UserUpdateOne) AddPointsLedgers(p ...*PointsLedger) *UserUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.AddPointsLedgerIDs(ids...)
+}
+
+// AddGiftcodeIDs adds the "giftcodes" edge to the GiftCode entity by IDs.
+func (uuo *UserUpdateOne) AddGiftcodeIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddGiftcodeIDs(ids...)
+	return uuo
+}
+
+// AddGiftcodes adds the "giftcodes" edges to the GiftCode entity.
+func (uuo *UserUpdateOne) AddGiftcodes(g ...*GiftCode) *UserUpdateOne {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return uuo.AddGiftcodeIDs(ids...)
+}
+
 // AddEntityIDs adds the "entities" edge to the Entity entity by IDs.
 func (uuo *UserUpdateOne) AddEntityIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.AddEntityIDs(ids...)
@@ -1616,6 +1907,69 @@ func (uuo *UserUpdateOne) RemoveAuditlogs(a ...*AuditLog) *UserUpdateOne {
 		ids[i] = a[i].ID
 	}
 	return uuo.RemoveAuditlogIDs(ids...)
+}
+
+// ClearPayments clears all "payments" edges to the Payment entity.
+func (uuo *UserUpdateOne) ClearPayments() *UserUpdateOne {
+	uuo.mutation.ClearPayments()
+	return uuo
+}
+
+// RemovePaymentIDs removes the "payments" edge to Payment entities by IDs.
+func (uuo *UserUpdateOne) RemovePaymentIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemovePaymentIDs(ids...)
+	return uuo
+}
+
+// RemovePayments removes "payments" edges to Payment entities.
+func (uuo *UserUpdateOne) RemovePayments(p ...*Payment) *UserUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.RemovePaymentIDs(ids...)
+}
+
+// ClearPointsLedgers clears all "points_ledgers" edges to the PointsLedger entity.
+func (uuo *UserUpdateOne) ClearPointsLedgers() *UserUpdateOne {
+	uuo.mutation.ClearPointsLedgers()
+	return uuo
+}
+
+// RemovePointsLedgerIDs removes the "points_ledgers" edge to PointsLedger entities by IDs.
+func (uuo *UserUpdateOne) RemovePointsLedgerIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemovePointsLedgerIDs(ids...)
+	return uuo
+}
+
+// RemovePointsLedgers removes "points_ledgers" edges to PointsLedger entities.
+func (uuo *UserUpdateOne) RemovePointsLedgers(p ...*PointsLedger) *UserUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.RemovePointsLedgerIDs(ids...)
+}
+
+// ClearGiftcodes clears all "giftcodes" edges to the GiftCode entity.
+func (uuo *UserUpdateOne) ClearGiftcodes() *UserUpdateOne {
+	uuo.mutation.ClearGiftcodes()
+	return uuo
+}
+
+// RemoveGiftcodeIDs removes the "giftcodes" edge to GiftCode entities by IDs.
+func (uuo *UserUpdateOne) RemoveGiftcodeIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemoveGiftcodeIDs(ids...)
+	return uuo
+}
+
+// RemoveGiftcodes removes "giftcodes" edges to GiftCode entities.
+func (uuo *UserUpdateOne) RemoveGiftcodes(g ...*GiftCode) *UserUpdateOne {
+	ids := make([]int, len(g))
+	for i := range g {
+		ids[i] = g[i].ID
+	}
+	return uuo.RemoveGiftcodeIDs(ids...)
 }
 
 // ClearEntities clears all "entities" edges to the Entity entity.
@@ -2152,6 +2506,141 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(auditlog.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.PaymentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentsTable,
+			Columns: []string{user.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedPaymentsIDs(); len(nodes) > 0 && !uuo.mutation.PaymentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentsTable,
+			Columns: []string{user.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.PaymentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PaymentsTable,
+			Columns: []string{user.PaymentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(payment.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.PointsLedgersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PointsLedgersTable,
+			Columns: []string{user.PointsLedgersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pointsledger.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedPointsLedgersIDs(); len(nodes) > 0 && !uuo.mutation.PointsLedgersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PointsLedgersTable,
+			Columns: []string{user.PointsLedgersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pointsledger.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.PointsLedgersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.PointsLedgersTable,
+			Columns: []string{user.PointsLedgersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(pointsledger.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.GiftcodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.GiftcodesTable,
+			Columns: []string{user.GiftcodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(giftcode.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedGiftcodesIDs(); len(nodes) > 0 && !uuo.mutation.GiftcodesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.GiftcodesTable,
+			Columns: []string{user.GiftcodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(giftcode.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.GiftcodesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.GiftcodesTable,
+			Columns: []string{user.GiftcodesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(giftcode.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

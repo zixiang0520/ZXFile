@@ -238,6 +238,10 @@ func (f *DBFS) Capacity(ctx context.Context, u *ent.User) (*fs.Capacity, error) 
 
 	res.Used = f.user.Storage
 	res.Total = requesterGroup.MaxStorage
+	// Purchased storage packs extend the group quota.
+	if f.user.Settings != nil && f.user.Settings.ExtraStorage > 0 {
+		res.Total += f.user.Settings.ExtraStorage
+	}
 	return res, nil
 }
 

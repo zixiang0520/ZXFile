@@ -864,6 +864,75 @@ func HasAuditlogsWith(preds ...predicate.AuditLog) predicate.User {
 	})
 }
 
+// HasPayments applies the HasEdge predicate on the "payments" edge.
+func HasPayments() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PaymentsTable, PaymentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPaymentsWith applies the HasEdge predicate on the "payments" edge with a given conditions (other predicates).
+func HasPaymentsWith(preds ...predicate.Payment) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newPaymentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasPointsLedgers applies the HasEdge predicate on the "points_ledgers" edge.
+func HasPointsLedgers() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, PointsLedgersTable, PointsLedgersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPointsLedgersWith applies the HasEdge predicate on the "points_ledgers" edge with a given conditions (other predicates).
+func HasPointsLedgersWith(preds ...predicate.PointsLedger) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newPointsLedgersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasGiftcodes applies the HasEdge predicate on the "giftcodes" edge.
+func HasGiftcodes() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, GiftcodesTable, GiftcodesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGiftcodesWith applies the HasEdge predicate on the "giftcodes" edge with a given conditions (other predicates).
+func HasGiftcodesWith(preds ...predicate.GiftCode) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newGiftcodesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasEntities applies the HasEdge predicate on the "entities" edge.
 func HasEntities() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
