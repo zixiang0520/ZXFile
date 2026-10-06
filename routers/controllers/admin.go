@@ -610,6 +610,18 @@ func AdminCalibrateStorage(c *gin.Context) {
 	c.JSON(200, serializer.Response{Data: res})
 }
 
+// AdminUserAdjustPoints 管理员调整用户积分（差额入账本）
+func AdminUserAdjustPoints(c *gin.Context) {
+	service := ParametersFromContext[*admin.UserAdjustPointsService](c, admin.UserAdjustPointsParamCtx{})
+	body := ParametersFromContext[*admin.UserAdjustPointsBody](c, admin.UserAdjustPointsBodyParamCtx{})
+	res, err := service.Adjust(c, body)
+	if err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		return
+	}
+	c.JSON(200, serializer.Response{Data: res})
+}
+
 // AdminListOAuthClients lists OAuth clients
 func AdminListOAuthClients(c *gin.Context) {
 	service := ParametersFromContext[*admin.AdminListService](c, admin.AdminListServiceParamsCtx{})

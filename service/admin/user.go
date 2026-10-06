@@ -12,6 +12,8 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/manager"
 	"github.com/cloudreve/Cloudreve/v4/pkg/hashid"
 	"github.com/cloudreve/Cloudreve/v4/pkg/serializer"
+	"github.com/cloudreve/Cloudreve/v4/pkg/eventtype"
+	"github.com/cloudreve/Cloudreve/v4/service/vas"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/samber/lo"
@@ -27,6 +29,20 @@ type AddUserService struct {
 type UserService struct {
 	ID uint `uri:"id" json:"id" binding:"required"`
 }
+
+// UserAdjustPointsService 管理员调整用户积分（差额入账本，delta 可正可负）
+type UserAdjustPointsService struct {
+	ID int `uri:"id" binding:"required"`
+}
+
+type UserAdjustPointsParamCtx struct{}
+
+type UserAdjustPointsBody struct {
+	Delta  int64  `json:"delta" binding:"required"`
+	Reason string `json:"reason"`
+}
+
+type UserAdjustPointsBodyParamCtx struct{}
 
 // UserBatchService 用户批量操作服务
 type UserBatchService struct {
@@ -119,6 +135,7 @@ func (service *SingleUserService) Get(c *gin.Context) (*GetUserResponse, error) 
 		HashID:       hashid.EncodeUserID(hasher, user.ID),
 		TwoFAEnabled: user.TwoFactorSecret != "",
 		Capacity:     capacity,
+		Points:       vas.GetPointsBalance(ctx, dep.DBClient(), user.ID),
 	}, nil
 }
 
@@ -270,4 +287,52 @@ func (s *BatchUserService) Delete(c *gin.Context) error {
 	}
 
 	return ae.Aggregate()
+}
+
+// AdjustPoints 管理员调整用户积分（差额记账：delta 正=充值，负=扣减；扣减不足时报错）
+func (service *UserAdjustPointsService) Adjust(c *gin.Context, body *UserAdjustPointsBody) (*GetUserResponse, error) {
+	dep := dependency.FromContext(c)
+	db := dep.DBClient()
+
+	ctx := context.WithValue(c, inventory.LoadUserGroup{}, true)
+	target, err := db.User.Query().Where(user.IDEQ(service.ID)).First(ctx)
+	if err != nil {
+		return nil, serializer.NewError(serializer.CodeDBError, "Failed to get user", err)
+	}
+
+	reason := body.Reason
+	if reason == "" {
+		reason = "admin_adjust"
+	}
+
+	if body.Delta > 0 {
+		if _, err := vas.GainPoints(c, db, service.ID, body.Delta, reason, "admin", 0); err != nil {
+			return nil, serializer.NewError(serializer.CodeDBError, "Failed to add points", err)
+		}
+	} else {
+		if _, err := vas.DeductPoints(c, db, service.ID, -body.Delta, reason, "admin", 0); err != nil {
+			return nil, serializer.NewError(serializer.CodeInsufficientCredit, "积分余额不足", err)
+		}
+	}
+
+	// 审计事件（与 VAS 支付事件同表）
+	ev := eventtype.PointsChange
+	creator := db.AuditLog.Create().
+		SetType(int(ev)).
+		SetAction(ev.Name()).
+		SetObjectType("user").
+		SetObjectName(target.Email).
+		SetContent(map[string]interface{}{
+			"delta":  body.Delta,
+			"reason": reason,
+			"by":     "admin",
+		}).
+		SetIP("")
+	creator.SetUserID(service.ID).SetUserEmail(target.Email)
+	if _, err := creator.Save(c); err != nil {
+		_ = err
+	}
+
+	resService := &SingleUserService{ID: service.ID}
+	return resService.Get(c)
 }

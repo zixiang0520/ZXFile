@@ -487,6 +487,7 @@ var DefaultSettings = map[string]string{
 	"siteURL":                                    `http://localhost:5212`,
 	"siteName":                                   `Cloudreve`,
 	"siteDes":                                    "Cloudreve",
+	"siteAnnouncement":                           "",
 	"siteID":                                     uuid.Must(uuid.NewV4()).String(),
 	"siteTitle":                                  "Cloud storage for everyone",
 	"siteScript":                                 "",

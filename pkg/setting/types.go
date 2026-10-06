@@ -14,11 +14,12 @@ type PWASetting struct {
 }
 
 type SiteBasic struct {
-	Name        string
-	Title       string
-	ID          string
-	Description string
-	Script      string
+	Name         string
+	Title        string
+	ID           string
+	Description  string
+	Script       string
+	Announcement string
 }
 
 type CaptchaType string

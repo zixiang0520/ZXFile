@@ -19,6 +19,7 @@ type SiteConfig struct {
 	// Basic Section
 	InstanceID     string                  `json:"instance_id,omitempty"`
 	SiteName       string                  `json:"title,omitempty"`
+	Announcement   string                  `json:"announcement,omitempty"`
 	Themes         string                  `json:"themes,omitempty"`
 	DefaultTheme   string                  `json:"default_theme,omitempty"`
 	User           *user.User              `json:"user,omitempty"`
@@ -194,6 +195,7 @@ func (s *GetSettingService) GetSiteConfig(c *gin.Context) (*SiteConfig, error) {
 	return &SiteConfig{
 		InstanceID:      siteBasic.ID,
 		SiteName:        siteBasic.Name,
+		Announcement:    siteBasic.Announcement,
 		Themes:          themes.Themes,
 		DefaultTheme:    themes.DefaultTheme,
 		User:            &userRes,

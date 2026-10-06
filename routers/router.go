@@ -1319,6 +1319,13 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 						controllers.FromUri[adminsvc.SingleUserService](adminsvc.SingleUserParamCtx{}),
 						controllers.AdminCalibrateStorage,
 					)
+					// 调整用户积分（差额入账本；与 :id 通配同参数名，不冲突）
+					user.POST(":id/points",
+						middleware.RequiredScopes(types.ScopeAdminWrite),
+						controllers.FromUri[adminsvc.UserAdjustPointsService](adminsvc.UserAdjustPointsParamCtx{}),
+						controllers.FromJSON[adminsvc.UserAdjustPointsBody](adminsvc.UserAdjustPointsBodyParamCtx{}),
+						controllers.AdminUserAdjustPoints,
+					)
 				}
 
 				// File usage statistics (per-user/per-policy aggregation).

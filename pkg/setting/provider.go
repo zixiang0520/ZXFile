@@ -869,11 +869,12 @@ func (s *settingProvider) ExposeUserEmail(ctx context.Context) bool {
 
 func (s *settingProvider) SiteBasic(ctx context.Context) *SiteBasic {
 	return &SiteBasic{
-		Name:        s.getString(ctx, "siteName", ""),
-		Title:       s.getString(ctx, "siteTitle", ""),
-		ID:          s.getString(ctx, "siteID", ""),
-		Description: s.getString(ctx, "siteDes", ""),
-		Script:      s.getString(ctx, "siteScript", ""),
+		Name:         s.getString(ctx, "siteName", ""),
+		Title:        s.getString(ctx, "siteTitle", ""),
+		ID:           s.getString(ctx, "siteID", ""),
+		Description:  s.getString(ctx, "siteDes", ""),
+		Script:       s.getString(ctx, "siteScript", ""),
+		Announcement: s.getString(ctx, "siteAnnouncement", ""),
 	}
 }
 
