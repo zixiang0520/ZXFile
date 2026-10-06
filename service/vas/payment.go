@@ -251,17 +251,12 @@ func AdminListPayments(c *gin.Context) serializer.Response {
 	}}
 }
 
-// AdminDeletePayments batch deletes payments.
-func AdminDeletePayments(c *gin.Context) serializer.Response {
+// Delete batch deletes payments（IDs 由路由层 FromJSON 绑定——勿在此重复消费 body，
+// 双重绑定会 EOF → "Invalid request"）。
+func (service *AdminDeletePaymentsService) Delete(c *gin.Context) serializer.Response {
 	dep := dependency.FromContext(c)
 	db := dep.DBClient()
-	var req struct {
-		IDs []int `json:"ids" binding:"min=1"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		return serializer.ParamErr(c, "Invalid request", err)
-	}
-	if _, err := db.Payment.Delete().Where(payment.IDIn(req.IDs...)).Exec(c); err != nil {
+	if _, err := db.Payment.Delete().Where(payment.IDIn(service.IDs...)).Exec(c); err != nil {
 		return serializer.DBErr(c, "Failed to delete payments", err)
 	}
 	return serializer.Response{}

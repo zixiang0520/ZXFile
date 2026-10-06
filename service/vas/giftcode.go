@@ -101,17 +101,13 @@ type AdminDeleteGiftCodesService struct {
 	IDs []int `json:"ids" binding:"min=1"`
 }
 
-// AdminDeleteGiftCodes batch deletes gift codes.
-func AdminDeleteGiftCodes(c *gin.Context) serializer.Response {
+// AdminDeleteGiftCodesParamCtx defines the context key.
+
+// Delete batch deletes gift codes（IDs 由路由层 FromJSON 绑定——勿在此重复消费 body）。
+func (service *AdminDeleteGiftCodesService) Delete(c *gin.Context) serializer.Response {
 	dep := dependency.FromContext(c)
 	db := dep.DBClient()
-	var req struct {
-		IDs []int `json:"ids" binding:"min=1"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		return serializer.ParamErr(c, "Invalid request", err)
-	}
-	if _, err := db.GiftCode.Delete().Where(giftcode.IDIn(req.IDs...)).Exec(c); err != nil {
+	if _, err := db.GiftCode.Delete().Where(giftcode.IDIn(service.IDs...)).Exec(c); err != nil {
 		return serializer.DBErr(c, "Failed to delete gift codes", err)
 	}
 	return serializer.Response{}

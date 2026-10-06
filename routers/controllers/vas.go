@@ -60,7 +60,8 @@ func VASAdminListPayments(c *gin.Context) {
 
 // VASAdminDeletePayments batch deletes payments.
 func VASAdminDeletePayments(c *gin.Context) {
-	res := vas.AdminDeletePayments(c)
+	service := ParametersFromContext[*vas.AdminDeletePaymentsService](c, vas.AdminDeletePaymentsParamCtx{})
+	res := service.Delete(c)
 	c.JSON(200, res)
 }
 
@@ -98,6 +99,7 @@ func VASAdminListGiftCodes(c *gin.Context) {
 
 // VASAdminDeleteGiftCodes batch deletes gift codes.
 func VASAdminDeleteGiftCodes(c *gin.Context) {
-	res := vas.AdminDeleteGiftCodes(c)
+	service := ParametersFromContext[*vas.AdminDeleteGiftCodesService](c, vas.AdminDeleteGiftCodesParamCtx{})
+	res := service.Delete(c)
 	c.JSON(200, res)
 }
