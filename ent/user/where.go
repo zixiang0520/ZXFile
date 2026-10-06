@@ -105,6 +105,16 @@ func GroupUsers(v int) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldGroupUsers, v))
 }
 
+// PreviousGroup applies equality check predicate on the "previous_group" field. It's identical to PreviousGroupEQ.
+func PreviousGroup(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldPreviousGroup, v))
+}
+
+// GroupExpires applies equality check predicate on the "group_expires" field. It's identical to GroupExpiresEQ.
+func GroupExpires(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldGroupExpires, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldCreatedAt, v))
@@ -678,6 +688,106 @@ func GroupUsersIn(vs ...int) predicate.User {
 // GroupUsersNotIn applies the NotIn predicate on the "group_users" field.
 func GroupUsersNotIn(vs ...int) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldGroupUsers, vs...))
+}
+
+// PreviousGroupEQ applies the EQ predicate on the "previous_group" field.
+func PreviousGroupEQ(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldPreviousGroup, v))
+}
+
+// PreviousGroupNEQ applies the NEQ predicate on the "previous_group" field.
+func PreviousGroupNEQ(v int) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldPreviousGroup, v))
+}
+
+// PreviousGroupIn applies the In predicate on the "previous_group" field.
+func PreviousGroupIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldIn(FieldPreviousGroup, vs...))
+}
+
+// PreviousGroupNotIn applies the NotIn predicate on the "previous_group" field.
+func PreviousGroupNotIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldPreviousGroup, vs...))
+}
+
+// PreviousGroupGT applies the GT predicate on the "previous_group" field.
+func PreviousGroupGT(v int) predicate.User {
+	return predicate.User(sql.FieldGT(FieldPreviousGroup, v))
+}
+
+// PreviousGroupGTE applies the GTE predicate on the "previous_group" field.
+func PreviousGroupGTE(v int) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldPreviousGroup, v))
+}
+
+// PreviousGroupLT applies the LT predicate on the "previous_group" field.
+func PreviousGroupLT(v int) predicate.User {
+	return predicate.User(sql.FieldLT(FieldPreviousGroup, v))
+}
+
+// PreviousGroupLTE applies the LTE predicate on the "previous_group" field.
+func PreviousGroupLTE(v int) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldPreviousGroup, v))
+}
+
+// PreviousGroupIsNil applies the IsNil predicate on the "previous_group" field.
+func PreviousGroupIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldPreviousGroup))
+}
+
+// PreviousGroupNotNil applies the NotNil predicate on the "previous_group" field.
+func PreviousGroupNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldPreviousGroup))
+}
+
+// GroupExpiresEQ applies the EQ predicate on the "group_expires" field.
+func GroupExpiresEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldGroupExpires, v))
+}
+
+// GroupExpiresNEQ applies the NEQ predicate on the "group_expires" field.
+func GroupExpiresNEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldGroupExpires, v))
+}
+
+// GroupExpiresIn applies the In predicate on the "group_expires" field.
+func GroupExpiresIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldIn(FieldGroupExpires, vs...))
+}
+
+// GroupExpiresNotIn applies the NotIn predicate on the "group_expires" field.
+func GroupExpiresNotIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldGroupExpires, vs...))
+}
+
+// GroupExpiresGT applies the GT predicate on the "group_expires" field.
+func GroupExpiresGT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGT(FieldGroupExpires, v))
+}
+
+// GroupExpiresGTE applies the GTE predicate on the "group_expires" field.
+func GroupExpiresGTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldGroupExpires, v))
+}
+
+// GroupExpiresLT applies the LT predicate on the "group_expires" field.
+func GroupExpiresLT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLT(FieldGroupExpires, v))
+}
+
+// GroupExpiresLTE applies the LTE predicate on the "group_expires" field.
+func GroupExpiresLTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldGroupExpires, v))
+}
+
+// GroupExpiresIsNil applies the IsNil predicate on the "group_expires" field.
+func GroupExpiresIsNil() predicate.User {
+	return predicate.User(sql.FieldIsNull(FieldGroupExpires))
+}
+
+// GroupExpiresNotNil applies the NotNil predicate on the "group_expires" field.
+func GroupExpiresNotNil() predicate.User {
+	return predicate.User(sql.FieldNotNull(FieldGroupExpires))
 }
 
 // HasGroup applies the HasEdge predicate on the "group" edge.

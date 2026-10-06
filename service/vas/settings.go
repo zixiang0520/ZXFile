@@ -35,14 +35,15 @@ const (
 
 // SKU is a purchasable product definition, stored as a settings JSON list.
 type SKU struct {
-	ID          string `json:"id"`
-	Type        string `json:"type"` // points | storage | group
-	Name        string `json:"name"`
-	Price       int64  `json:"price"`       // in cents, 0 = points-only
-	Currency    string `json:"currency,omitempty"`
-	PointsPrice int64  `json:"points_price,omitempty"` // price in points
-	Num         int64  `json:"num"`                    // points amount / storage bytes / group id
-	OnSale      bool   `json:"on_sale"`
+	ID           string `json:"id"`
+	Type         string `json:"type"` // points | storage | group
+	Name         string `json:"name"`
+	Price        int64  `json:"price"`       // in cents, 0 = points-only
+	Currency     string `json:"currency,omitempty"`
+	PointsPrice  int64  `json:"points_price,omitempty"` // price in points
+	Num          int64  `json:"num"`                    // points amount / storage bytes / group id
+	DurationDays int64  `json:"duration_days,omitempty"` // 会员商品有效期（天）：>0 到期回退原始用户组，0/缺省 = 永久
+	OnSale       bool   `json:"on_sale"`
 }
 
 // Provider is a payment channel configuration, stored as a settings JSON list.

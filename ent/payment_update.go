@@ -150,6 +150,27 @@ func (pu *PaymentUpdate) ClearSkuName() *PaymentUpdate {
 	return pu
 }
 
+// SetDurationDays sets the "duration_days" field.
+func (pu *PaymentUpdate) SetDurationDays(i int64) *PaymentUpdate {
+	pu.mutation.ResetDurationDays()
+	pu.mutation.SetDurationDays(i)
+	return pu
+}
+
+// SetNillableDurationDays sets the "duration_days" field if the given value is not nil.
+func (pu *PaymentUpdate) SetNillableDurationDays(i *int64) *PaymentUpdate {
+	if i != nil {
+		pu.SetDurationDays(*i)
+	}
+	return pu
+}
+
+// AddDurationDays adds i to the "duration_days" field.
+func (pu *PaymentUpdate) AddDurationDays(i int64) *PaymentUpdate {
+	pu.mutation.AddDurationDays(i)
+	return pu
+}
+
 // SetNum sets the "num" field.
 func (pu *PaymentUpdate) SetNum(i int64) *PaymentUpdate {
 	pu.mutation.ResetNum()
@@ -554,6 +575,12 @@ func (pu *PaymentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.SkuNameCleared() {
 		_spec.ClearField(payment.FieldSkuName, field.TypeString)
 	}
+	if value, ok := pu.mutation.DurationDays(); ok {
+		_spec.SetField(payment.FieldDurationDays, field.TypeInt64, value)
+	}
+	if value, ok := pu.mutation.AddedDurationDays(); ok {
+		_spec.AddField(payment.FieldDurationDays, field.TypeInt64, value)
+	}
 	if value, ok := pu.mutation.Num(); ok {
 		_spec.SetField(payment.FieldNum, field.TypeInt64, value)
 	}
@@ -793,6 +820,27 @@ func (puo *PaymentUpdateOne) SetNillableSkuName(s *string) *PaymentUpdateOne {
 // ClearSkuName clears the value of the "sku_name" field.
 func (puo *PaymentUpdateOne) ClearSkuName() *PaymentUpdateOne {
 	puo.mutation.ClearSkuName()
+	return puo
+}
+
+// SetDurationDays sets the "duration_days" field.
+func (puo *PaymentUpdateOne) SetDurationDays(i int64) *PaymentUpdateOne {
+	puo.mutation.ResetDurationDays()
+	puo.mutation.SetDurationDays(i)
+	return puo
+}
+
+// SetNillableDurationDays sets the "duration_days" field if the given value is not nil.
+func (puo *PaymentUpdateOne) SetNillableDurationDays(i *int64) *PaymentUpdateOne {
+	if i != nil {
+		puo.SetDurationDays(*i)
+	}
+	return puo
+}
+
+// AddDurationDays adds i to the "duration_days" field.
+func (puo *PaymentUpdateOne) AddDurationDays(i int64) *PaymentUpdateOne {
+	puo.mutation.AddDurationDays(i)
 	return puo
 }
 
@@ -1229,6 +1277,12 @@ func (puo *PaymentUpdateOne) sqlSave(ctx context.Context) (_node *Payment, err e
 	}
 	if puo.mutation.SkuNameCleared() {
 		_spec.ClearField(payment.FieldSkuName, field.TypeString)
+	}
+	if value, ok := puo.mutation.DurationDays(); ok {
+		_spec.SetField(payment.FieldDurationDays, field.TypeInt64, value)
+	}
+	if value, ok := puo.mutation.AddedDurationDays(); ok {
+		_spec.AddField(payment.FieldDurationDays, field.TypeInt64, value)
 	}
 	if value, ok := puo.mutation.Num(); ok {
 		_spec.SetField(payment.FieldNum, field.TypeInt64, value)

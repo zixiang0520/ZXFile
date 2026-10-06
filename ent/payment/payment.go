@@ -31,6 +31,8 @@ const (
 	FieldSkuID = "sku_id"
 	// FieldSkuName holds the string denoting the sku_name field in the database.
 	FieldSkuName = "sku_name"
+	// FieldDurationDays holds the string denoting the duration_days field in the database.
+	FieldDurationDays = "duration_days"
 	// FieldNum holds the string denoting the num field in the database.
 	FieldNum = "num"
 	// FieldQuantity holds the string denoting the quantity field in the database.
@@ -79,6 +81,7 @@ var Columns = []string{
 	FieldProductType,
 	FieldSkuID,
 	FieldSkuName,
+	FieldDurationDays,
 	FieldNum,
 	FieldQuantity,
 	FieldAmount,
@@ -123,6 +126,8 @@ var (
 	ProductTypeValidator func(string) error
 	// SkuNameValidator is a validator for the "sku_name" field. It is called by the builders before save.
 	SkuNameValidator func(string) error
+	// DefaultDurationDays holds the default value on creation for the "duration_days" field.
+	DefaultDurationDays int64
 	// DefaultQuantity holds the default value on creation for the "quantity" field.
 	DefaultQuantity int
 	// DefaultAmount holds the default value on creation for the "amount" field.
@@ -195,6 +200,11 @@ func BySkuID(opts ...sql.OrderTermOption) OrderOption {
 // BySkuName orders the results by the sku_name field.
 func BySkuName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSkuName, opts...).ToFunc()
+}
+
+// ByDurationDays orders the results by the duration_days field.
+func ByDurationDays(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDurationDays, opts...).ToFunc()
 }
 
 // ByNum orders the results by the num field.

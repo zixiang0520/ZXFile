@@ -36,6 +36,11 @@ func (User) Fields() []ent.Field {
 			Default(&types.UserSetting{}).
 			Optional(),
 		field.Int("group_users"),
+		// 换组回退：购买用户组商品前的原始用户组 + 到期时间（nil = 永久/未在会员组）
+		field.Int("previous_group").
+			Optional(),
+		field.Time("group_expires").
+			Optional(),
 	}
 }
 

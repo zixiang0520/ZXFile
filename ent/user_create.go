@@ -172,6 +172,34 @@ func (uc *UserCreate) SetGroupUsers(i int) *UserCreate {
 	return uc
 }
 
+// SetPreviousGroup sets the "previous_group" field.
+func (uc *UserCreate) SetPreviousGroup(i int) *UserCreate {
+	uc.mutation.SetPreviousGroup(i)
+	return uc
+}
+
+// SetNillablePreviousGroup sets the "previous_group" field if the given value is not nil.
+func (uc *UserCreate) SetNillablePreviousGroup(i *int) *UserCreate {
+	if i != nil {
+		uc.SetPreviousGroup(*i)
+	}
+	return uc
+}
+
+// SetGroupExpires sets the "group_expires" field.
+func (uc *UserCreate) SetGroupExpires(t time.Time) *UserCreate {
+	uc.mutation.SetGroupExpires(t)
+	return uc
+}
+
+// SetNillableGroupExpires sets the "group_expires" field if the given value is not nil.
+func (uc *UserCreate) SetNillableGroupExpires(t *time.Time) *UserCreate {
+	if t != nil {
+		uc.SetGroupExpires(*t)
+	}
+	return uc
+}
+
 // SetGroupID sets the "group" edge to the Group entity by ID.
 func (uc *UserCreate) SetGroupID(id int) *UserCreate {
 	uc.mutation.SetGroupID(id)
@@ -547,6 +575,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Settings(); ok {
 		_spec.SetField(user.FieldSettings, field.TypeJSON, value)
 		_node.Settings = value
+	}
+	if value, ok := uc.mutation.PreviousGroup(); ok {
+		_spec.SetField(user.FieldPreviousGroup, field.TypeInt, value)
+		_node.PreviousGroup = value
+	}
+	if value, ok := uc.mutation.GroupExpires(); ok {
+		_spec.SetField(user.FieldGroupExpires, field.TypeTime, value)
+		_node.GroupExpires = value
 	}
 	if nodes := uc.mutation.GroupIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -977,6 +1013,48 @@ func (u *UserUpsert) UpdateGroupUsers() *UserUpsert {
 	return u
 }
 
+// SetPreviousGroup sets the "previous_group" field.
+func (u *UserUpsert) SetPreviousGroup(v int) *UserUpsert {
+	u.Set(user.FieldPreviousGroup, v)
+	return u
+}
+
+// UpdatePreviousGroup sets the "previous_group" field to the value that was provided on create.
+func (u *UserUpsert) UpdatePreviousGroup() *UserUpsert {
+	u.SetExcluded(user.FieldPreviousGroup)
+	return u
+}
+
+// AddPreviousGroup adds v to the "previous_group" field.
+func (u *UserUpsert) AddPreviousGroup(v int) *UserUpsert {
+	u.Add(user.FieldPreviousGroup, v)
+	return u
+}
+
+// ClearPreviousGroup clears the value of the "previous_group" field.
+func (u *UserUpsert) ClearPreviousGroup() *UserUpsert {
+	u.SetNull(user.FieldPreviousGroup)
+	return u
+}
+
+// SetGroupExpires sets the "group_expires" field.
+func (u *UserUpsert) SetGroupExpires(v time.Time) *UserUpsert {
+	u.Set(user.FieldGroupExpires, v)
+	return u
+}
+
+// UpdateGroupExpires sets the "group_expires" field to the value that was provided on create.
+func (u *UserUpsert) UpdateGroupExpires() *UserUpsert {
+	u.SetExcluded(user.FieldGroupExpires)
+	return u
+}
+
+// ClearGroupExpires clears the value of the "group_expires" field.
+func (u *UserUpsert) ClearGroupExpires() *UserUpsert {
+	u.SetNull(user.FieldGroupExpires)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -1215,6 +1293,55 @@ func (u *UserUpsertOne) SetGroupUsers(v int) *UserUpsertOne {
 func (u *UserUpsertOne) UpdateGroupUsers() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateGroupUsers()
+	})
+}
+
+// SetPreviousGroup sets the "previous_group" field.
+func (u *UserUpsertOne) SetPreviousGroup(v int) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetPreviousGroup(v)
+	})
+}
+
+// AddPreviousGroup adds v to the "previous_group" field.
+func (u *UserUpsertOne) AddPreviousGroup(v int) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.AddPreviousGroup(v)
+	})
+}
+
+// UpdatePreviousGroup sets the "previous_group" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdatePreviousGroup() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdatePreviousGroup()
+	})
+}
+
+// ClearPreviousGroup clears the value of the "previous_group" field.
+func (u *UserUpsertOne) ClearPreviousGroup() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearPreviousGroup()
+	})
+}
+
+// SetGroupExpires sets the "group_expires" field.
+func (u *UserUpsertOne) SetGroupExpires(v time.Time) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetGroupExpires(v)
+	})
+}
+
+// UpdateGroupExpires sets the "group_expires" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateGroupExpires() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateGroupExpires()
+	})
+}
+
+// ClearGroupExpires clears the value of the "group_expires" field.
+func (u *UserUpsertOne) ClearGroupExpires() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearGroupExpires()
 	})
 }
 
@@ -1627,6 +1754,55 @@ func (u *UserUpsertBulk) SetGroupUsers(v int) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdateGroupUsers() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateGroupUsers()
+	})
+}
+
+// SetPreviousGroup sets the "previous_group" field.
+func (u *UserUpsertBulk) SetPreviousGroup(v int) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetPreviousGroup(v)
+	})
+}
+
+// AddPreviousGroup adds v to the "previous_group" field.
+func (u *UserUpsertBulk) AddPreviousGroup(v int) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.AddPreviousGroup(v)
+	})
+}
+
+// UpdatePreviousGroup sets the "previous_group" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdatePreviousGroup() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdatePreviousGroup()
+	})
+}
+
+// ClearPreviousGroup clears the value of the "previous_group" field.
+func (u *UserUpsertBulk) ClearPreviousGroup() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearPreviousGroup()
+	})
+}
+
+// SetGroupExpires sets the "group_expires" field.
+func (u *UserUpsertBulk) SetGroupExpires(v time.Time) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetGroupExpires(v)
+	})
+}
+
+// UpdateGroupExpires sets the "group_expires" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateGroupExpires() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateGroupExpires()
+	})
+}
+
+// ClearGroupExpires clears the value of the "group_expires" field.
+func (u *UserUpsertBulk) ClearGroupExpires() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearGroupExpires()
 	})
 }
 

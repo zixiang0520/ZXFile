@@ -579,6 +579,14 @@ func (c *userClient) Upsert(ctx context.Context, u *ent.User, password, twoFa st
 		SetStatus(u.Status).
 		SetGroupID(u.GroupUsers)
 
+	// 换组回退字段（管理员可编辑；0/零值 = 不变，清除由到期回退任务处理）
+	if u.PreviousGroup > 0 {
+		q.SetPreviousGroup(u.PreviousGroup)
+	}
+	if !u.GroupExpires.IsZero() {
+		q.SetGroupExpires(u.GroupExpires)
+	}
+
 	if password != "" {
 		pwdDigest, err := digestPassword(password)
 		if err != nil {

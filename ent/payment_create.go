@@ -119,6 +119,20 @@ func (pc *PaymentCreate) SetNillableSkuName(s *string) *PaymentCreate {
 	return pc
 }
 
+// SetDurationDays sets the "duration_days" field.
+func (pc *PaymentCreate) SetDurationDays(i int64) *PaymentCreate {
+	pc.mutation.SetDurationDays(i)
+	return pc
+}
+
+// SetNillableDurationDays sets the "duration_days" field if the given value is not nil.
+func (pc *PaymentCreate) SetNillableDurationDays(i *int64) *PaymentCreate {
+	if i != nil {
+		pc.SetDurationDays(*i)
+	}
+	return pc
+}
+
 // SetNum sets the "num" field.
 func (pc *PaymentCreate) SetNum(i int64) *PaymentCreate {
 	pc.mutation.SetNum(i)
@@ -343,6 +357,10 @@ func (pc *PaymentCreate) defaults() error {
 		v := payment.DefaultUpdatedAt()
 		pc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := pc.mutation.DurationDays(); !ok {
+		v := payment.DefaultDurationDays
+		pc.mutation.SetDurationDays(v)
+	}
 	if _, ok := pc.mutation.Quantity(); !ok {
 		v := payment.DefaultQuantity
 		pc.mutation.SetQuantity(v)
@@ -390,6 +408,9 @@ func (pc *PaymentCreate) check() error {
 		if err := payment.SkuNameValidator(v); err != nil {
 			return &ValidationError{Name: "sku_name", err: fmt.Errorf(`ent: validator failed for field "Payment.sku_name": %w`, err)}
 		}
+	}
+	if _, ok := pc.mutation.DurationDays(); !ok {
+		return &ValidationError{Name: "duration_days", err: errors.New(`ent: missing required field "Payment.duration_days"`)}
 	}
 	if _, ok := pc.mutation.Quantity(); !ok {
 		return &ValidationError{Name: "quantity", err: errors.New(`ent: missing required field "Payment.quantity"`)}
@@ -504,6 +525,10 @@ func (pc *PaymentCreate) createSpec() (*Payment, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.SkuName(); ok {
 		_spec.SetField(payment.FieldSkuName, field.TypeString, value)
 		_node.SkuName = value
+	}
+	if value, ok := pc.mutation.DurationDays(); ok {
+		_spec.SetField(payment.FieldDurationDays, field.TypeInt64, value)
+		_node.DurationDays = value
 	}
 	if value, ok := pc.mutation.Num(); ok {
 		_spec.SetField(payment.FieldNum, field.TypeInt64, value)
@@ -733,6 +758,24 @@ func (u *PaymentUpsert) UpdateSkuName() *PaymentUpsert {
 // ClearSkuName clears the value of the "sku_name" field.
 func (u *PaymentUpsert) ClearSkuName() *PaymentUpsert {
 	u.SetNull(payment.FieldSkuName)
+	return u
+}
+
+// SetDurationDays sets the "duration_days" field.
+func (u *PaymentUpsert) SetDurationDays(v int64) *PaymentUpsert {
+	u.Set(payment.FieldDurationDays, v)
+	return u
+}
+
+// UpdateDurationDays sets the "duration_days" field to the value that was provided on create.
+func (u *PaymentUpsert) UpdateDurationDays() *PaymentUpsert {
+	u.SetExcluded(payment.FieldDurationDays)
+	return u
+}
+
+// AddDurationDays adds v to the "duration_days" field.
+func (u *PaymentUpsert) AddDurationDays(v int64) *PaymentUpsert {
+	u.Add(payment.FieldDurationDays, v)
 	return u
 }
 
@@ -1127,6 +1170,27 @@ func (u *PaymentUpsertOne) UpdateSkuName() *PaymentUpsertOne {
 func (u *PaymentUpsertOne) ClearSkuName() *PaymentUpsertOne {
 	return u.Update(func(s *PaymentUpsert) {
 		s.ClearSkuName()
+	})
+}
+
+// SetDurationDays sets the "duration_days" field.
+func (u *PaymentUpsertOne) SetDurationDays(v int64) *PaymentUpsertOne {
+	return u.Update(func(s *PaymentUpsert) {
+		s.SetDurationDays(v)
+	})
+}
+
+// AddDurationDays adds v to the "duration_days" field.
+func (u *PaymentUpsertOne) AddDurationDays(v int64) *PaymentUpsertOne {
+	return u.Update(func(s *PaymentUpsert) {
+		s.AddDurationDays(v)
+	})
+}
+
+// UpdateDurationDays sets the "duration_days" field to the value that was provided on create.
+func (u *PaymentUpsertOne) UpdateDurationDays() *PaymentUpsertOne {
+	return u.Update(func(s *PaymentUpsert) {
+		s.UpdateDurationDays()
 	})
 }
 
@@ -1728,6 +1792,27 @@ func (u *PaymentUpsertBulk) UpdateSkuName() *PaymentUpsertBulk {
 func (u *PaymentUpsertBulk) ClearSkuName() *PaymentUpsertBulk {
 	return u.Update(func(s *PaymentUpsert) {
 		s.ClearSkuName()
+	})
+}
+
+// SetDurationDays sets the "duration_days" field.
+func (u *PaymentUpsertBulk) SetDurationDays(v int64) *PaymentUpsertBulk {
+	return u.Update(func(s *PaymentUpsert) {
+		s.SetDurationDays(v)
+	})
+}
+
+// AddDurationDays adds v to the "duration_days" field.
+func (u *PaymentUpsertBulk) AddDurationDays(v int64) *PaymentUpsertBulk {
+	return u.Update(func(s *PaymentUpsert) {
+		s.AddDurationDays(v)
+	})
+}
+
+// UpdateDurationDays sets the "duration_days" field to the value that was provided on create.
+func (u *PaymentUpsertBulk) UpdateDurationDays() *PaymentUpsertBulk {
+	return u.Update(func(s *PaymentUpsert) {
+		s.UpdateDurationDays()
 	})
 }
 

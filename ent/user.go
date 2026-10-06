@@ -44,6 +44,10 @@ type User struct {
 	Settings *types.UserSetting `json:"settings,omitempty"`
 	// GroupUsers holds the value of the "group_users" field.
 	GroupUsers int `json:"group_users,omitempty"`
+	// PreviousGroup holds the value of the "previous_group" field.
+	PreviousGroup int `json:"previous_group,omitempty"`
+	// GroupExpires holds the value of the "group_expires" field.
+	GroupExpires time.Time `json:"group_expires,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -211,11 +215,11 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldSettings:
 			values[i] = new([]byte)
-		case user.FieldID, user.FieldStorage, user.FieldGroupUsers:
+		case user.FieldID, user.FieldStorage, user.FieldGroupUsers, user.FieldPreviousGroup:
 			values[i] = new(sql.NullInt64)
 		case user.FieldEmail, user.FieldNick, user.FieldPassword, user.FieldStatus, user.FieldTwoFactorSecret, user.FieldAvatar:
 			values[i] = new(sql.NullString)
-		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt:
+		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt, user.FieldGroupExpires:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -312,6 +316,18 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field group_users", values[i])
 			} else if value.Valid {
 				u.GroupUsers = int(value.Int64)
+			}
+		case user.FieldPreviousGroup:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field previous_group", values[i])
+			} else if value.Valid {
+				u.PreviousGroup = int(value.Int64)
+			}
+		case user.FieldGroupExpires:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field group_expires", values[i])
+			} else if value.Valid {
+				u.GroupExpires = value.Time
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -449,6 +465,12 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("group_users=")
 	builder.WriteString(fmt.Sprintf("%v", u.GroupUsers))
+	builder.WriteString(", ")
+	builder.WriteString("previous_group=")
+	builder.WriteString(fmt.Sprintf("%v", u.PreviousGroup))
+	builder.WriteString(", ")
+	builder.WriteString("group_expires=")
+	builder.WriteString(u.GroupExpires.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

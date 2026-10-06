@@ -22,6 +22,7 @@ func (Payment) Fields() []ent.Field {
 		field.String("product_type").MaxLen(32), // points | storage | group
 		field.Int("sku_id").Optional(),
 		field.String("sku_name").Optional().MaxLen(255),
+		field.Int64("duration_days").Default(0), // 商品有效期（天）：会员商品到期回退，0 = 永久
 		field.Int64("num").Optional(),     // points amount / storage bytes / group id
 		field.Int("quantity").Default(1),  // purchase quantity
 		field.Int64("amount").Default(0),  // price in cents

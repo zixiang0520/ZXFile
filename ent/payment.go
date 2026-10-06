@@ -34,6 +34,8 @@ type Payment struct {
 	SkuID int `json:"sku_id,omitempty"`
 	// SkuName holds the value of the "sku_name" field.
 	SkuName string `json:"sku_name,omitempty"`
+	// DurationDays holds the value of the "duration_days" field.
+	DurationDays int64 `json:"duration_days,omitempty"`
 	// Num holds the value of the "num" field.
 	Num int64 `json:"num,omitempty"`
 	// Quantity holds the value of the "quantity" field.
@@ -91,7 +93,7 @@ func (*Payment) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case payment.FieldID, payment.FieldUserID, payment.FieldSkuID, payment.FieldNum, payment.FieldQuantity, payment.FieldAmount, payment.FieldPointsUsed:
+		case payment.FieldID, payment.FieldUserID, payment.FieldSkuID, payment.FieldDurationDays, payment.FieldNum, payment.FieldQuantity, payment.FieldAmount, payment.FieldPointsUsed:
 			values[i] = new(sql.NullInt64)
 		case payment.FieldOrderNo, payment.FieldProductType, payment.FieldSkuName, payment.FieldCurrency, payment.FieldChannel, payment.FieldChannelTradeNo, payment.FieldPayURL, payment.FieldStatus, payment.FieldFailureReason, payment.FieldEmail, payment.FieldResumeTicket:
 			values[i] = new(sql.NullString)
@@ -166,6 +168,12 @@ func (pa *Payment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field sku_name", values[i])
 			} else if value.Valid {
 				pa.SkuName = value.String
+			}
+		case payment.FieldDurationDays:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field duration_days", values[i])
+			} else if value.Valid {
+				pa.DurationDays = value.Int64
 			}
 		case payment.FieldNum:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -305,6 +313,9 @@ func (pa *Payment) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("sku_name=")
 	builder.WriteString(pa.SkuName)
+	builder.WriteString(", ")
+	builder.WriteString("duration_days=")
+	builder.WriteString(fmt.Sprintf("%v", pa.DurationDays))
 	builder.WriteString(", ")
 	builder.WriteString("num=")
 	builder.WriteString(fmt.Sprintf("%v", pa.Num))

@@ -539,6 +539,7 @@ var DefaultSettings = map[string]string{
 	"cron_garbage_collect":                       "@every 30m",
 	"cron_entity_collect":                        "@every 15m",
 	"cron_trash_bin_collect":                     "@every 33m",
+	"cron_group_expire":                          "@every 15m",
 	"cron_oauth_cred_refresh":                    "@every 230h",
 	"authn_enabled":                              "1",
 	"captcha_type":                               "normal",

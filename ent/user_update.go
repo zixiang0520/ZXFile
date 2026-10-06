@@ -217,6 +217,53 @@ func (uu *UserUpdate) SetNillableGroupUsers(i *int) *UserUpdate {
 	return uu
 }
 
+// SetPreviousGroup sets the "previous_group" field.
+func (uu *UserUpdate) SetPreviousGroup(i int) *UserUpdate {
+	uu.mutation.ResetPreviousGroup()
+	uu.mutation.SetPreviousGroup(i)
+	return uu
+}
+
+// SetNillablePreviousGroup sets the "previous_group" field if the given value is not nil.
+func (uu *UserUpdate) SetNillablePreviousGroup(i *int) *UserUpdate {
+	if i != nil {
+		uu.SetPreviousGroup(*i)
+	}
+	return uu
+}
+
+// AddPreviousGroup adds i to the "previous_group" field.
+func (uu *UserUpdate) AddPreviousGroup(i int) *UserUpdate {
+	uu.mutation.AddPreviousGroup(i)
+	return uu
+}
+
+// ClearPreviousGroup clears the value of the "previous_group" field.
+func (uu *UserUpdate) ClearPreviousGroup() *UserUpdate {
+	uu.mutation.ClearPreviousGroup()
+	return uu
+}
+
+// SetGroupExpires sets the "group_expires" field.
+func (uu *UserUpdate) SetGroupExpires(t time.Time) *UserUpdate {
+	uu.mutation.SetGroupExpires(t)
+	return uu
+}
+
+// SetNillableGroupExpires sets the "group_expires" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableGroupExpires(t *time.Time) *UserUpdate {
+	if t != nil {
+		uu.SetGroupExpires(*t)
+	}
+	return uu
+}
+
+// ClearGroupExpires clears the value of the "group_expires" field.
+func (uu *UserUpdate) ClearGroupExpires() *UserUpdate {
+	uu.mutation.ClearGroupExpires()
+	return uu
+}
+
 // SetGroupID sets the "group" edge to the Group entity by ID.
 func (uu *UserUpdate) SetGroupID(id int) *UserUpdate {
 	uu.mutation.SetGroupID(id)
@@ -795,6 +842,21 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if uu.mutation.SettingsCleared() {
 		_spec.ClearField(user.FieldSettings, field.TypeJSON)
+	}
+	if value, ok := uu.mutation.PreviousGroup(); ok {
+		_spec.SetField(user.FieldPreviousGroup, field.TypeInt, value)
+	}
+	if value, ok := uu.mutation.AddedPreviousGroup(); ok {
+		_spec.AddField(user.FieldPreviousGroup, field.TypeInt, value)
+	}
+	if uu.mutation.PreviousGroupCleared() {
+		_spec.ClearField(user.FieldPreviousGroup, field.TypeInt)
+	}
+	if value, ok := uu.mutation.GroupExpires(); ok {
+		_spec.SetField(user.FieldGroupExpires, field.TypeTime, value)
+	}
+	if uu.mutation.GroupExpiresCleared() {
+		_spec.ClearField(user.FieldGroupExpires, field.TypeTime)
 	}
 	if uu.mutation.GroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1560,6 +1622,53 @@ func (uuo *UserUpdateOne) SetNillableGroupUsers(i *int) *UserUpdateOne {
 	return uuo
 }
 
+// SetPreviousGroup sets the "previous_group" field.
+func (uuo *UserUpdateOne) SetPreviousGroup(i int) *UserUpdateOne {
+	uuo.mutation.ResetPreviousGroup()
+	uuo.mutation.SetPreviousGroup(i)
+	return uuo
+}
+
+// SetNillablePreviousGroup sets the "previous_group" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillablePreviousGroup(i *int) *UserUpdateOne {
+	if i != nil {
+		uuo.SetPreviousGroup(*i)
+	}
+	return uuo
+}
+
+// AddPreviousGroup adds i to the "previous_group" field.
+func (uuo *UserUpdateOne) AddPreviousGroup(i int) *UserUpdateOne {
+	uuo.mutation.AddPreviousGroup(i)
+	return uuo
+}
+
+// ClearPreviousGroup clears the value of the "previous_group" field.
+func (uuo *UserUpdateOne) ClearPreviousGroup() *UserUpdateOne {
+	uuo.mutation.ClearPreviousGroup()
+	return uuo
+}
+
+// SetGroupExpires sets the "group_expires" field.
+func (uuo *UserUpdateOne) SetGroupExpires(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetGroupExpires(t)
+	return uuo
+}
+
+// SetNillableGroupExpires sets the "group_expires" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableGroupExpires(t *time.Time) *UserUpdateOne {
+	if t != nil {
+		uuo.SetGroupExpires(*t)
+	}
+	return uuo
+}
+
+// ClearGroupExpires clears the value of the "group_expires" field.
+func (uuo *UserUpdateOne) ClearGroupExpires() *UserUpdateOne {
+	uuo.mutation.ClearGroupExpires()
+	return uuo
+}
+
 // SetGroupID sets the "group" edge to the Group entity by ID.
 func (uuo *UserUpdateOne) SetGroupID(id int) *UserUpdateOne {
 	uuo.mutation.SetGroupID(id)
@@ -2168,6 +2277,21 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if uuo.mutation.SettingsCleared() {
 		_spec.ClearField(user.FieldSettings, field.TypeJSON)
+	}
+	if value, ok := uuo.mutation.PreviousGroup(); ok {
+		_spec.SetField(user.FieldPreviousGroup, field.TypeInt, value)
+	}
+	if value, ok := uuo.mutation.AddedPreviousGroup(); ok {
+		_spec.AddField(user.FieldPreviousGroup, field.TypeInt, value)
+	}
+	if uuo.mutation.PreviousGroupCleared() {
+		_spec.ClearField(user.FieldPreviousGroup, field.TypeInt)
+	}
+	if value, ok := uuo.mutation.GroupExpires(); ok {
+		_spec.SetField(user.FieldGroupExpires, field.TypeTime, value)
+	}
+	if uuo.mutation.GroupExpiresCleared() {
+		_spec.ClearField(user.FieldGroupExpires, field.TypeTime)
 	}
 	if uuo.mutation.GroupCleared() {
 		edge := &sqlgraph.EdgeSpec{

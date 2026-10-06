@@ -41,6 +41,10 @@ const (
 	FieldSettings = "settings"
 	// FieldGroupUsers holds the string denoting the group_users field in the database.
 	FieldGroupUsers = "group_users"
+	// FieldPreviousGroup holds the string denoting the previous_group field in the database.
+	FieldPreviousGroup = "previous_group"
+	// FieldGroupExpires holds the string denoting the group_expires field in the database.
+	FieldGroupExpires = "group_expires"
 	// EdgeGroup holds the string denoting the group edge name in mutations.
 	EdgeGroup = "group"
 	// EdgeFiles holds the string denoting the files edge name in mutations.
@@ -177,6 +181,8 @@ var Columns = []string{
 	FieldAvatar,
 	FieldSettings,
 	FieldGroupUsers,
+	FieldPreviousGroup,
+	FieldGroupExpires,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -302,6 +308,16 @@ func ByAvatar(opts ...sql.OrderTermOption) OrderOption {
 // ByGroupUsers orders the results by the group_users field.
 func ByGroupUsers(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldGroupUsers, opts...).ToFunc()
+}
+
+// ByPreviousGroup orders the results by the previous_group field.
+func ByPreviousGroup(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPreviousGroup, opts...).ToFunc()
+}
+
+// ByGroupExpires orders the results by the group_expires field.
+func ByGroupExpires(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupExpires, opts...).ToFunc()
 }
 
 // ByGroupField orders the results by group field.

@@ -458,50 +458,54 @@ func init() {
 	paymentDescSkuName := paymentFields[4].Descriptor()
 	// payment.SkuNameValidator is a validator for the "sku_name" field. It is called by the builders before save.
 	payment.SkuNameValidator = paymentDescSkuName.Validators[0].(func(string) error)
+	// paymentDescDurationDays is the schema descriptor for duration_days field.
+	paymentDescDurationDays := paymentFields[5].Descriptor()
+	// payment.DefaultDurationDays holds the default value on creation for the duration_days field.
+	payment.DefaultDurationDays = paymentDescDurationDays.Default.(int64)
 	// paymentDescQuantity is the schema descriptor for quantity field.
-	paymentDescQuantity := paymentFields[6].Descriptor()
+	paymentDescQuantity := paymentFields[7].Descriptor()
 	// payment.DefaultQuantity holds the default value on creation for the quantity field.
 	payment.DefaultQuantity = paymentDescQuantity.Default.(int)
 	// paymentDescAmount is the schema descriptor for amount field.
-	paymentDescAmount := paymentFields[7].Descriptor()
+	paymentDescAmount := paymentFields[8].Descriptor()
 	// payment.DefaultAmount holds the default value on creation for the amount field.
 	payment.DefaultAmount = paymentDescAmount.Default.(int64)
 	// paymentDescCurrency is the schema descriptor for currency field.
-	paymentDescCurrency := paymentFields[8].Descriptor()
+	paymentDescCurrency := paymentFields[9].Descriptor()
 	// payment.CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
 	payment.CurrencyValidator = paymentDescCurrency.Validators[0].(func(string) error)
 	// paymentDescPointsUsed is the schema descriptor for points_used field.
-	paymentDescPointsUsed := paymentFields[9].Descriptor()
+	paymentDescPointsUsed := paymentFields[10].Descriptor()
 	// payment.DefaultPointsUsed holds the default value on creation for the points_used field.
 	payment.DefaultPointsUsed = paymentDescPointsUsed.Default.(int64)
 	// paymentDescChannel is the schema descriptor for channel field.
-	paymentDescChannel := paymentFields[10].Descriptor()
+	paymentDescChannel := paymentFields[11].Descriptor()
 	// payment.ChannelValidator is a validator for the "channel" field. It is called by the builders before save.
 	payment.ChannelValidator = paymentDescChannel.Validators[0].(func(string) error)
 	// paymentDescChannelTradeNo is the schema descriptor for channel_trade_no field.
-	paymentDescChannelTradeNo := paymentFields[11].Descriptor()
+	paymentDescChannelTradeNo := paymentFields[12].Descriptor()
 	// payment.ChannelTradeNoValidator is a validator for the "channel_trade_no" field. It is called by the builders before save.
 	payment.ChannelTradeNoValidator = paymentDescChannelTradeNo.Validators[0].(func(string) error)
 	// paymentDescPayURL is the schema descriptor for pay_url field.
-	paymentDescPayURL := paymentFields[12].Descriptor()
+	paymentDescPayURL := paymentFields[13].Descriptor()
 	// payment.PayURLValidator is a validator for the "pay_url" field. It is called by the builders before save.
 	payment.PayURLValidator = paymentDescPayURL.Validators[0].(func(string) error)
 	// paymentDescStatus is the schema descriptor for status field.
-	paymentDescStatus := paymentFields[13].Descriptor()
+	paymentDescStatus := paymentFields[14].Descriptor()
 	// payment.DefaultStatus holds the default value on creation for the status field.
 	payment.DefaultStatus = paymentDescStatus.Default.(string)
 	// payment.StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	payment.StatusValidator = paymentDescStatus.Validators[0].(func(string) error)
 	// paymentDescFailureReason is the schema descriptor for failure_reason field.
-	paymentDescFailureReason := paymentFields[14].Descriptor()
+	paymentDescFailureReason := paymentFields[15].Descriptor()
 	// payment.FailureReasonValidator is a validator for the "failure_reason" field. It is called by the builders before save.
 	payment.FailureReasonValidator = paymentDescFailureReason.Validators[0].(func(string) error)
 	// paymentDescEmail is the schema descriptor for email field.
-	paymentDescEmail := paymentFields[15].Descriptor()
+	paymentDescEmail := paymentFields[16].Descriptor()
 	// payment.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	payment.EmailValidator = paymentDescEmail.Validators[0].(func(string) error)
 	// paymentDescResumeTicket is the schema descriptor for resume_ticket field.
-	paymentDescResumeTicket := paymentFields[16].Descriptor()
+	paymentDescResumeTicket := paymentFields[17].Descriptor()
 	// payment.ResumeTicketValidator is a validator for the "resume_ticket" field. It is called by the builders before save.
 	payment.ResumeTicketValidator = paymentDescResumeTicket.Validators[0].(func(string) error)
 	pointsledgerMixin := schema.PointsLedger{}.Mixin()

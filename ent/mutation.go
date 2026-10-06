@@ -14135,6 +14135,8 @@ type PaymentMutation struct {
 	sku_id           *int
 	addsku_id        *int
 	sku_name         *string
+	duration_days    *int64
+	addduration_days *int64
 	num              *int64
 	addnum           *int64
 	quantity         *int
@@ -14616,6 +14618,62 @@ func (m *PaymentMutation) SkuNameCleared() bool {
 func (m *PaymentMutation) ResetSkuName() {
 	m.sku_name = nil
 	delete(m.clearedFields, payment.FieldSkuName)
+}
+
+// SetDurationDays sets the "duration_days" field.
+func (m *PaymentMutation) SetDurationDays(i int64) {
+	m.duration_days = &i
+	m.addduration_days = nil
+}
+
+// DurationDays returns the value of the "duration_days" field in the mutation.
+func (m *PaymentMutation) DurationDays() (r int64, exists bool) {
+	v := m.duration_days
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDurationDays returns the old "duration_days" field's value of the Payment entity.
+// If the Payment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentMutation) OldDurationDays(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDurationDays is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDurationDays requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDurationDays: %w", err)
+	}
+	return oldValue.DurationDays, nil
+}
+
+// AddDurationDays adds i to the "duration_days" field.
+func (m *PaymentMutation) AddDurationDays(i int64) {
+	if m.addduration_days != nil {
+		*m.addduration_days += i
+	} else {
+		m.addduration_days = &i
+	}
+}
+
+// AddedDurationDays returns the value that was added to the "duration_days" field in this mutation.
+func (m *PaymentMutation) AddedDurationDays() (r int64, exists bool) {
+	v := m.addduration_days
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDurationDays resets all changes to the "duration_days" field.
+func (m *PaymentMutation) ResetDurationDays() {
+	m.duration_days = nil
+	m.addduration_days = nil
 }
 
 // SetNum sets the "num" field.
@@ -15296,7 +15354,7 @@ func (m *PaymentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PaymentMutation) Fields() []string {
-	fields := make([]string, 0, 20)
+	fields := make([]string, 0, 21)
 	if m.created_at != nil {
 		fields = append(fields, payment.FieldCreatedAt)
 	}
@@ -15320,6 +15378,9 @@ func (m *PaymentMutation) Fields() []string {
 	}
 	if m.sku_name != nil {
 		fields = append(fields, payment.FieldSkuName)
+	}
+	if m.duration_days != nil {
+		fields = append(fields, payment.FieldDurationDays)
 	}
 	if m.num != nil {
 		fields = append(fields, payment.FieldNum)
@@ -15381,6 +15442,8 @@ func (m *PaymentMutation) Field(name string) (ent.Value, bool) {
 		return m.SkuID()
 	case payment.FieldSkuName:
 		return m.SkuName()
+	case payment.FieldDurationDays:
+		return m.DurationDays()
 	case payment.FieldNum:
 		return m.Num()
 	case payment.FieldQuantity:
@@ -15430,6 +15493,8 @@ func (m *PaymentMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldSkuID(ctx)
 	case payment.FieldSkuName:
 		return m.OldSkuName(ctx)
+	case payment.FieldDurationDays:
+		return m.OldDurationDays(ctx)
 	case payment.FieldNum:
 		return m.OldNum(ctx)
 	case payment.FieldQuantity:
@@ -15518,6 +15583,13 @@ func (m *PaymentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetSkuName(v)
+		return nil
+	case payment.FieldDurationDays:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDurationDays(v)
 		return nil
 	case payment.FieldNum:
 		v, ok := value.(int64)
@@ -15614,6 +15686,9 @@ func (m *PaymentMutation) AddedFields() []string {
 	if m.addsku_id != nil {
 		fields = append(fields, payment.FieldSkuID)
 	}
+	if m.addduration_days != nil {
+		fields = append(fields, payment.FieldDurationDays)
+	}
 	if m.addnum != nil {
 		fields = append(fields, payment.FieldNum)
 	}
@@ -15636,6 +15711,8 @@ func (m *PaymentMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case payment.FieldSkuID:
 		return m.AddedSkuID()
+	case payment.FieldDurationDays:
+		return m.AddedDurationDays()
 	case payment.FieldNum:
 		return m.AddedNum()
 	case payment.FieldQuantity:
@@ -15659,6 +15736,13 @@ func (m *PaymentMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddSkuID(v)
+		return nil
+	case payment.FieldDurationDays:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDurationDays(v)
 		return nil
 	case payment.FieldNum:
 		v, ok := value.(int64)
@@ -15813,6 +15897,9 @@ func (m *PaymentMutation) ResetField(name string) error {
 		return nil
 	case payment.FieldSkuName:
 		m.ResetSkuName()
+		return nil
+	case payment.FieldDurationDays:
+		m.ResetDurationDays()
 		return nil
 	case payment.FieldNum:
 		m.ResetNum()
@@ -21163,6 +21250,9 @@ type UserMutation struct {
 	two_factor_secret     *string
 	avatar                *string
 	settings              **types.UserSetting
+	previous_group        *int
+	addprevious_group     *int
+	group_expires         *time.Time
 	clearedFields         map[string]struct{}
 	group                 *int
 	clearedgroup          bool
@@ -21820,6 +21910,125 @@ func (m *UserMutation) OldGroupUsers(ctx context.Context) (v int, err error) {
 // ResetGroupUsers resets all changes to the "group_users" field.
 func (m *UserMutation) ResetGroupUsers() {
 	m.group = nil
+}
+
+// SetPreviousGroup sets the "previous_group" field.
+func (m *UserMutation) SetPreviousGroup(i int) {
+	m.previous_group = &i
+	m.addprevious_group = nil
+}
+
+// PreviousGroup returns the value of the "previous_group" field in the mutation.
+func (m *UserMutation) PreviousGroup() (r int, exists bool) {
+	v := m.previous_group
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPreviousGroup returns the old "previous_group" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldPreviousGroup(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPreviousGroup is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPreviousGroup requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPreviousGroup: %w", err)
+	}
+	return oldValue.PreviousGroup, nil
+}
+
+// AddPreviousGroup adds i to the "previous_group" field.
+func (m *UserMutation) AddPreviousGroup(i int) {
+	if m.addprevious_group != nil {
+		*m.addprevious_group += i
+	} else {
+		m.addprevious_group = &i
+	}
+}
+
+// AddedPreviousGroup returns the value that was added to the "previous_group" field in this mutation.
+func (m *UserMutation) AddedPreviousGroup() (r int, exists bool) {
+	v := m.addprevious_group
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearPreviousGroup clears the value of the "previous_group" field.
+func (m *UserMutation) ClearPreviousGroup() {
+	m.previous_group = nil
+	m.addprevious_group = nil
+	m.clearedFields[user.FieldPreviousGroup] = struct{}{}
+}
+
+// PreviousGroupCleared returns if the "previous_group" field was cleared in this mutation.
+func (m *UserMutation) PreviousGroupCleared() bool {
+	_, ok := m.clearedFields[user.FieldPreviousGroup]
+	return ok
+}
+
+// ResetPreviousGroup resets all changes to the "previous_group" field.
+func (m *UserMutation) ResetPreviousGroup() {
+	m.previous_group = nil
+	m.addprevious_group = nil
+	delete(m.clearedFields, user.FieldPreviousGroup)
+}
+
+// SetGroupExpires sets the "group_expires" field.
+func (m *UserMutation) SetGroupExpires(t time.Time) {
+	m.group_expires = &t
+}
+
+// GroupExpires returns the value of the "group_expires" field in the mutation.
+func (m *UserMutation) GroupExpires() (r time.Time, exists bool) {
+	v := m.group_expires
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupExpires returns the old "group_expires" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldGroupExpires(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupExpires is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupExpires requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupExpires: %w", err)
+	}
+	return oldValue.GroupExpires, nil
+}
+
+// ClearGroupExpires clears the value of the "group_expires" field.
+func (m *UserMutation) ClearGroupExpires() {
+	m.group_expires = nil
+	m.clearedFields[user.FieldGroupExpires] = struct{}{}
+}
+
+// GroupExpiresCleared returns if the "group_expires" field was cleared in this mutation.
+func (m *UserMutation) GroupExpiresCleared() bool {
+	_, ok := m.clearedFields[user.FieldGroupExpires]
+	return ok
+}
+
+// ResetGroupExpires resets all changes to the "group_expires" field.
+func (m *UserMutation) ResetGroupExpires() {
+	m.group_expires = nil
+	delete(m.clearedFields, user.FieldGroupExpires)
 }
 
 // SetGroupID sets the "group" edge to the Group entity by id.
@@ -22544,7 +22753,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 14)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -22581,6 +22790,12 @@ func (m *UserMutation) Fields() []string {
 	if m.group != nil {
 		fields = append(fields, user.FieldGroupUsers)
 	}
+	if m.previous_group != nil {
+		fields = append(fields, user.FieldPreviousGroup)
+	}
+	if m.group_expires != nil {
+		fields = append(fields, user.FieldGroupExpires)
+	}
 	return fields
 }
 
@@ -22613,6 +22828,10 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Settings()
 	case user.FieldGroupUsers:
 		return m.GroupUsers()
+	case user.FieldPreviousGroup:
+		return m.PreviousGroup()
+	case user.FieldGroupExpires:
+		return m.GroupExpires()
 	}
 	return nil, false
 }
@@ -22646,6 +22865,10 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldSettings(ctx)
 	case user.FieldGroupUsers:
 		return m.OldGroupUsers(ctx)
+	case user.FieldPreviousGroup:
+		return m.OldPreviousGroup(ctx)
+	case user.FieldGroupExpires:
+		return m.OldGroupExpires(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -22739,6 +22962,20 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetGroupUsers(v)
 		return nil
+	case user.FieldPreviousGroup:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPreviousGroup(v)
+		return nil
+	case user.FieldGroupExpires:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupExpires(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -22750,6 +22987,9 @@ func (m *UserMutation) AddedFields() []string {
 	if m.addstorage != nil {
 		fields = append(fields, user.FieldStorage)
 	}
+	if m.addprevious_group != nil {
+		fields = append(fields, user.FieldPreviousGroup)
+	}
 	return fields
 }
 
@@ -22760,6 +23000,8 @@ func (m *UserMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case user.FieldStorage:
 		return m.AddedStorage()
+	case user.FieldPreviousGroup:
+		return m.AddedPreviousGroup()
 	}
 	return nil, false
 }
@@ -22775,6 +23017,13 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddStorage(v)
+		return nil
+	case user.FieldPreviousGroup:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPreviousGroup(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User numeric field %s", name)
@@ -22798,6 +23047,12 @@ func (m *UserMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(user.FieldSettings) {
 		fields = append(fields, user.FieldSettings)
+	}
+	if m.FieldCleared(user.FieldPreviousGroup) {
+		fields = append(fields, user.FieldPreviousGroup)
+	}
+	if m.FieldCleared(user.FieldGroupExpires) {
+		fields = append(fields, user.FieldGroupExpires)
 	}
 	return fields
 }
@@ -22827,6 +23082,12 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldSettings:
 		m.ClearSettings()
+		return nil
+	case user.FieldPreviousGroup:
+		m.ClearPreviousGroup()
+		return nil
+	case user.FieldGroupExpires:
+		m.ClearGroupExpires()
 		return nil
 	}
 	return fmt.Errorf("unknown User nullable field %s", name)
@@ -22871,6 +23132,12 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldGroupUsers:
 		m.ResetGroupUsers()
+		return nil
+	case user.FieldPreviousGroup:
+		m.ResetPreviousGroup()
+		return nil
+	case user.FieldGroupExpires:
+		m.ResetGroupExpires()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

@@ -95,6 +95,11 @@ func SkuName(v string) predicate.Payment {
 	return predicate.Payment(sql.FieldEQ(FieldSkuName, v))
 }
 
+// DurationDays applies equality check predicate on the "duration_days" field. It's identical to DurationDaysEQ.
+func DurationDays(v int64) predicate.Payment {
+	return predicate.Payment(sql.FieldEQ(FieldDurationDays, v))
+}
+
 // Num applies equality check predicate on the "num" field. It's identical to NumEQ.
 func Num(v int64) predicate.Payment {
 	return predicate.Payment(sql.FieldEQ(FieldNum, v))
@@ -568,6 +573,46 @@ func SkuNameEqualFold(v string) predicate.Payment {
 // SkuNameContainsFold applies the ContainsFold predicate on the "sku_name" field.
 func SkuNameContainsFold(v string) predicate.Payment {
 	return predicate.Payment(sql.FieldContainsFold(FieldSkuName, v))
+}
+
+// DurationDaysEQ applies the EQ predicate on the "duration_days" field.
+func DurationDaysEQ(v int64) predicate.Payment {
+	return predicate.Payment(sql.FieldEQ(FieldDurationDays, v))
+}
+
+// DurationDaysNEQ applies the NEQ predicate on the "duration_days" field.
+func DurationDaysNEQ(v int64) predicate.Payment {
+	return predicate.Payment(sql.FieldNEQ(FieldDurationDays, v))
+}
+
+// DurationDaysIn applies the In predicate on the "duration_days" field.
+func DurationDaysIn(vs ...int64) predicate.Payment {
+	return predicate.Payment(sql.FieldIn(FieldDurationDays, vs...))
+}
+
+// DurationDaysNotIn applies the NotIn predicate on the "duration_days" field.
+func DurationDaysNotIn(vs ...int64) predicate.Payment {
+	return predicate.Payment(sql.FieldNotIn(FieldDurationDays, vs...))
+}
+
+// DurationDaysGT applies the GT predicate on the "duration_days" field.
+func DurationDaysGT(v int64) predicate.Payment {
+	return predicate.Payment(sql.FieldGT(FieldDurationDays, v))
+}
+
+// DurationDaysGTE applies the GTE predicate on the "duration_days" field.
+func DurationDaysGTE(v int64) predicate.Payment {
+	return predicate.Payment(sql.FieldGTE(FieldDurationDays, v))
+}
+
+// DurationDaysLT applies the LT predicate on the "duration_days" field.
+func DurationDaysLT(v int64) predicate.Payment {
+	return predicate.Payment(sql.FieldLT(FieldDurationDays, v))
+}
+
+// DurationDaysLTE applies the LTE predicate on the "duration_days" field.
+func DurationDaysLTE(v int64) predicate.Payment {
+	return predicate.Payment(sql.FieldLTE(FieldDurationDays, v))
 }
 
 // NumEQ applies the EQ predicate on the "num" field.

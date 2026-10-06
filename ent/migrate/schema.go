@@ -497,6 +497,7 @@ var (
 		{Name: "product_type", Type: field.TypeString, Size: 32},
 		{Name: "sku_id", Type: field.TypeInt, Nullable: true},
 		{Name: "sku_name", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "duration_days", Type: field.TypeInt64, Default: 0},
 		{Name: "num", Type: field.TypeInt64, Nullable: true},
 		{Name: "quantity", Type: field.TypeInt, Default: 1},
 		{Name: "amount", Type: field.TypeInt64, Default: 0},
@@ -519,7 +520,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "payments_users_payments",
-				Columns:    []*schema.Column{PaymentsColumns[20]},
+				Columns:    []*schema.Column{PaymentsColumns[21]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -528,17 +529,17 @@ var (
 			{
 				Name:    "payment_user_id_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{PaymentsColumns[20], PaymentsColumns[1]},
+				Columns: []*schema.Column{PaymentsColumns[21], PaymentsColumns[1]},
 			},
 			{
 				Name:    "payment_status",
 				Unique:  false,
-				Columns: []*schema.Column{PaymentsColumns[16]},
+				Columns: []*schema.Column{PaymentsColumns[17]},
 			},
 			{
 				Name:    "payment_channel",
 				Unique:  false,
-				Columns: []*schema.Column{PaymentsColumns[13]},
+				Columns: []*schema.Column{PaymentsColumns[14]},
 			},
 		},
 	}
@@ -711,6 +712,8 @@ var (
 		{Name: "two_factor_secret", Type: field.TypeString, Nullable: true},
 		{Name: "avatar", Type: field.TypeString, Nullable: true},
 		{Name: "settings", Type: field.TypeJSON, Nullable: true},
+		{Name: "previous_group", Type: field.TypeInt, Nullable: true},
+		{Name: "group_expires", Type: field.TypeTime, Nullable: true},
 		{Name: "group_users", Type: field.TypeInt},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -721,7 +724,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_groups_users",
-				Columns:    []*schema.Column{UsersColumns[12]},
+				Columns:    []*schema.Column{UsersColumns[14]},
 				RefColumns: []*schema.Column{GroupsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

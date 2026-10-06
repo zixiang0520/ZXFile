@@ -105,6 +105,10 @@ func (service *CreatePaymentRequest) Create(c *gin.Context) serializer.Response 
 		SetCurrency(currency).
 		SetStatus(PaymentStatusUnpaid).
 		SetResumeTicket(resumeTicket)
+	// 会员商品有效期快照（到期回退用）
+	if sku.DurationDays > 0 {
+		create = create.SetDurationDays(sku.DurationDays)
+	}
 	if user != nil {
 		create = create.SetUserID(user.ID)
 	}
@@ -333,7 +337,7 @@ func fulfillOrder(c *gin.Context, db *ent.Client, u *ent.User, p *ent.Payment) e
 	case ProductTypeStorage:
 		err = addExtraStorage(c, db, u.ID, p.Num*int64(p.Quantity))
 	case ProductTypeGroup:
-		_, err = db.User.UpdateOneID(u.ID).SetGroupUsers(int(p.Num)).Save(c)
+		err = fulfillGroup(c, db, u, p)
 	case ProductTypePoints:
 		_, err = GainPoints(c, db, u.ID, p.Num*int64(p.Quantity), "recharge", p.OrderNo, p.ID)
 	default:
