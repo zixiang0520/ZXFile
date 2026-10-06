@@ -1,3 +1,9 @@
+> [!NOTE]
+> **ZXFile** — 基于 [Cloudreve](https://github.com/cloudreve/cloudreve) V4（GPL V3）的魔改分支：
+> 自研复刻 Pro 独有功能（**商店与支付 / 积分账本 / 换组到期回退 / 文件导入 / 存储策略迁移 / 协作分享**），
+> 全站 ZXFile 品牌，无需授权密钥。发行包见 [Releases](../../releases)，源码结构见下方原版说明。
+> 前端子模块（cloudreve-frontend）为私有仓库，二进制内嵌前端可直接使用。
+
 [中文版本](https://github.com/cloudreve/cloudreve/blob/master/README_zh-CN.md)
 
 <h1 align="center">
