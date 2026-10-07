@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	// PersonalAPIHost 个人云 API 主机
-	PersonalAPIHost = "https://personal-kd-njs.yun.139.com"
+	// PersonalAPIHost 个人云 API 主机（/hcy 为个人云编排路径前缀，fts/OpenList 同款）
+	PersonalAPIHost = "https://personal-kd-njs.yun.139.com/hcy"
 	// PartSize 分片大小（与 OpenList 一致 100MB）
 	PartSize = 100 * 1024 * 1024
 	// maxPartsPerCall create/getUploadUrl 单次最多返回 100 片地址
@@ -220,6 +220,12 @@ func (c *Client) Post(ctx context.Context, pathname string, data interface{}) (m
 		if err := json.Unmarshal([]byte(text), &j); err != nil {
 			return nil, fmt.Errorf("云盘响应无效 HTTP %d: %s", resp.StatusCode, truncate(text, 160))
 		}
+		// 139 网关错误（如 {"error_msg":"404 Route Not Found"}）没有 code/message 字段，
+		// 若按"成功"返回会让上层拿到空数据难以排查——非 2xx 一律按错误抛出
+		if resp.StatusCode >= 400 {
+			em, _ := j["error_msg"].(string)
+			return nil, fmt.Errorf("云盘 HTTP %d: %s", resp.StatusCode, truncate(em, 160))
+		}
 		msg, _ := j["message"].(string)
 		code, _ := j["code"].(string)
 		success := true
@@ -236,7 +242,7 @@ func (c *Client) Post(ctx context.Context, pathname string, data interface{}) (m
 			}
 		}
 		if resp.StatusCode >= 400 {
-			return nil, &APIError{Code: code, Message: truncate(msg, 120), AuthFail: authFail}
+			return nil, &APIError{Code: code, Message: fmt.Sprintf("HTTP %d %s", resp.StatusCode, truncate(msg, 120)), AuthFail: authFail}
 		}
 		if !success {
 			return nil, &APIError{Code: code, Message: truncate(msg, 160), AuthFail: authFail}
