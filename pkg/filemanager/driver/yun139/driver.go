@@ -249,14 +249,24 @@ func (d *Driver) Put(ctx context.Context, file *fs.UploadRequest) error {
 	seeker := file.Seeker
 	var tmp *os.File
 	if seeker == nil {
+		// temp 目录可能不存在（data/temp 非本地策略必需目录）
+		if err := os.MkdirAll(util.DataPath("temp"), 0700); err != nil {
+			return err
+		}
 		tmp, err = os.CreateTemp(util.DataPath("temp"), "yun139-*")
 		if err != nil {
 			return err
 		}
 		defer os.Remove(tmp.Name())
-		if _, err := io.Copy(tmp, file); err != nil {
+		copied, err := io.Copy(tmp, file)
+		if err != nil {
 			tmp.Close()
 			return err
+		}
+		// 重试时上游流可能已耗尽：长度不符直接报错，避免把空/截断内容传上云
+		if copied != file.Props.Size {
+			tmp.Close()
+			return fmt.Errorf("源流长度不符（已读 %d / 预期 %d），请重试任务", copied, file.Props.Size)
 		}
 		if _, err := tmp.Seek(0, io.SeekStart); err != nil {
 			tmp.Close()
