@@ -314,8 +314,10 @@ func (service *ImportWorkflowService) CreateImportTask(c *gin.Context) (*TaskRes
 
 type (
 	RelocateWorkflowService struct {
-		Src         []string `json:"src" binding:"required_without=FileIDs,dive,required"`
-		FileIDs     []int    `json:"file_ids" binding:"required_without=Src,min=1"`
+		// Src / FileIDs 二选一；gin 的 required_without + min 组合会误伤（空字段仍触发 min），
+		// 因此去掉 binding，改为服务内手工校验
+		Src         []string `json:"src"`
+		FileIDs     []int    `json:"file_ids"`
 		DstPolicyID int      `json:"dst_policy_id" binding:"required"`
 	}
 	CreateRelocateParamCtx struct{}
@@ -328,6 +330,10 @@ func (service *RelocateWorkflowService) CreateRelocateTask(c *gin.Context) (*Tas
 
 	if !user.Edges.Group.Permissions.Enabled(int(types.GroupPermissionIsAdmin)) {
 		return nil, serializer.NewError(serializer.CodeGroupNotAllowed, "Only admin can relocate files", nil)
+	}
+
+	if len(service.Src) == 0 && len(service.FileIDs) == 0 {
+		return nil, serializer.NewError(serializer.CodeParamErr, "Src 或 FileIDs 至少提供一个", nil)
 	}
 
 	t, err := workflows.NewRelocateTask(c, user, service.Src, service.FileIDs, service.DstPolicyID)
