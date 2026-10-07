@@ -74,6 +74,7 @@ type (
 		UserID     int
 		FileID     int
 		PublicOnly bool
+		OnlyValid  bool
 		ShareIDs   []int
 	}
 	ListShareResult struct {
@@ -355,6 +356,22 @@ func (c *shareClient) listQuery(args *ListShareArgs) *ent.ShareQuery {
 
 	if args.PublicOnly {
 		query.Where(share.PasswordIsNil())
+	}
+
+	// OnlyValid filters out expired shares, inactive owners and deleted
+	// source files in SQL, used by public listing endpoints (discover).
+	if args.OnlyValid {
+		validPreds := []predicate.Share{
+			share.Or(
+				share.ExpiresIsNil(),
+				share.ExpiresGT(time.Now()),
+			),
+			share.Or(
+				share.RemainDownloadsIsNil(),
+				share.RemainDownloadsGT(0),
+			),
+		}
+		query.Where(validPreds...)
 	}
 
 	if args.FileID > 0 {

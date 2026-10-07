@@ -72,6 +72,23 @@ func ListShare(c *gin.Context) {
 	}
 }
 
+// DiscoverShare 全站公开分享列表（ZXFile 发现页）
+func DiscoverShare(c *gin.Context) {
+	service := ParametersFromContext[*share.DiscoverService](c, share.DiscoverParamCtx{})
+	resp, err := service.List(c)
+	if err != nil {
+		c.JSON(200, serializer.Err(c, err))
+		c.Abort()
+		return
+	}
+
+	if resp != nil {
+		c.JSON(200, serializer.Response{
+			Data: resp,
+		})
+	}
+}
+
 // DeleteShare 删除分享
 func DeleteShare(c *gin.Context) {
 	err := share.DeleteShare(c, hashid.FromContext(c))

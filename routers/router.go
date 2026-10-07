@@ -888,6 +888,12 @@ func initMasterRouter(dep dependency.Dep) *gin.Engine {
 				controllers.FromQuery[sharesvc.ListShareService](sharesvc.ListShareParamCtx{}),
 				controllers.ListShare,
 			)
+			// 全站公开分享列表（ZXFile 发现页）
+			share.GET("discover",
+				middleware.LoginRequired(),
+				controllers.FromQuery[sharesvc.DiscoverService](sharesvc.DiscoverParamCtx{}),
+				controllers.DiscoverShare,
+			)
 			// 删除分享
 			share.DELETE(":id",
 				middleware.LoginRequired(),

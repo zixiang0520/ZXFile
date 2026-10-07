@@ -123,7 +123,63 @@ type (
 		NextPageToken  string `form:"next_page_token"`
 	}
 	ListShareParamCtx struct{}
+
+	// DiscoverService lists public, valid shares across all users
+	// (ZXFile Android discover page).
+	DiscoverService struct {
+		PageSize       int    `form:"page_size" binding:"omitempty,min=10,max=100"`
+		OrderBy        string `form:"order_by"`
+		OrderDirection string `form:"order_direction"`
+		NextPageToken  string `form:"next_page_token"`
+	}
+	DiscoverParamCtx struct{}
 )
+
+// Discover lists public shares from all users, ordered by creation
+// time descending. SQL-level filters: no password, not expired,
+// remaining downloads. Owner/source-file validity is filtered after
+// the query via IsValidShare.
+func (s *DiscoverService) List(c *gin.Context) (*ListShareResponse, error) {
+	dep := dependency.FromContext(c)
+	user := inventory.UserFromContext(c)
+	if inventory.IsAnonymousUser(user) {
+		return nil, serializer.NewError(serializer.CodeCheckLogin, "Login required", nil)
+	}
+	hasher := dep.HashIDEncoder()
+	shareClient := dep.ShareClient()
+
+	args := &inventory.ListShareArgs{
+		PaginationArgs: &inventory.PaginationArgs{
+			UseCursorPagination: true,
+			PageToken:           s.NextPageToken,
+			PageSize:            s.PageSize,
+			Order:               inventory.OrderDirection(s.OrderDirection),
+			OrderBy:             s.OrderBy,
+		},
+		PublicOnly: true,
+		OnlyValid:  true,
+	}
+
+	ctx := context.WithValue(c, inventory.LoadShareUser{}, true)
+	ctx = context.WithValue(ctx, inventory.LoadShareFile{}, true)
+	ctx = context.WithValue(ctx, inventory.LoadFileMetadata{}, true)
+	res, err := shareClient.List(ctx, args)
+	if err != nil {
+		return nil, serializer.NewError(serializer.CodeDBError, "Failed to list shares", err)
+	}
+
+	// Drop shares whose owner is inactive or source file deleted.
+	validShares := make([]*ent.Share, 0, len(res.Shares))
+	for _, sh := range res.Shares {
+		if err := inventory.IsValidShare(sh); err == nil {
+			validShares = append(validShares, sh)
+		}
+	}
+	res.Shares = validShares
+
+	base := dep.SettingProvider().SiteURL(ctx)
+	return BuildListShareResponse(ctx, res, hasher, base, user, true), nil
+}
 
 func (s *ListShareService) List(c *gin.Context) (*ListShareResponse, error) {
 	dep := dependency.FromContext(c)
