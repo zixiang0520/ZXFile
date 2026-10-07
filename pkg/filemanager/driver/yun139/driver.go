@@ -39,8 +39,9 @@ var (
 )
 
 func init() {
+	// 139 直链为带签名的 CDN 地址（无 IP/UA 限制），浏览器可直连，无需代理
 	boolset.Sets(map[driver.HandlerCapability]bool{
-		driver.HandlerCapabilityProxyRequired: true,
+		driver.HandlerCapabilityProxyRequired: false,
 	}, capabilities.StaticFeatures)
 }
 
