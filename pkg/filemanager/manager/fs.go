@@ -17,6 +17,7 @@ import (
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/driver/remote"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/driver/s3"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/driver/upyun"
+	yun139 "github.com/cloudreve/Cloudreve/v4/pkg/filemanager/driver/yun139"
 	"github.com/cloudreve/Cloudreve/v4/pkg/filemanager/fs"
 	"github.com/cloudreve/Cloudreve/v4/pkg/serializer"
 )
@@ -82,6 +83,8 @@ func (m *manager) GetStorageDriver(ctx context.Context, policy *ent.StoragePolic
 		return qiniu.New(ctx, policy, m.settings, m.config, m.l, m.dep.MimeDetector(ctx))
 	case types.PolicyTypeUpyun:
 		return upyun.New(ctx, policy, m.settings, m.config, m.l, m.dep.MimeDetector(ctx))
+	case types.PolicyTypeYun139:
+		return yun139.New(ctx, policy, m.config, m.l)
 	case types.PolicyTypeOd:
 		return onedrive.New(ctx, policy, m.settings, m.config, m.l, m.dep.CredManager())
 	default:

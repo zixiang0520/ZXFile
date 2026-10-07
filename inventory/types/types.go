@@ -97,6 +97,16 @@ type (
 		NativeMediaProcessing bool `json:"native_media_processing"`
 		// S3DeleteBatchSize the number of objects to delete in each batch.
 		S3DeleteBatchSize int `json:"s3_delete_batch_size,omitempty"`
+		// 移动云盘：Authorization base64（也镜像存于 Policy.AccessKey）
+		Yun139Token string `json:"yun139_token,omitempty"`
+		// 移动云盘：邮箱账号（密码登录自动续期用）
+		Yun139Username string `json:"yun139_username,omitempty"`
+		// 移动云盘：邮箱密码
+		Yun139Password string `json:"yun139_password,omitempty"`
+		// 移动云盘：mail.10086.cn Cookie（含 Os_SSo_Sid / RMKEY）
+		Yun139MailCookies string `json:"yun139_mail_cookies,omitempty"`
+		// 移动云盘：根目录 parentFileId（"/" = 个人云根目录）
+		Yun139RootFolderID string `json:"yun139_root_folder_id,omitempty"`
 		// StreamSaver whether to use stream saver to download file in Web.
 		StreamSaver bool `json:"stream_saver,omitempty"`
 		// UseCname whether to use CNAME for endpoint (OSS).
@@ -342,6 +352,7 @@ const (
 	PolicyTypeOd     = "onedrive"
 	PolicyTypeRemote = "remote"
 	PolicyTypeObs    = "obs"
+	PolicyTypeYun139 = "yun139"
 )
 
 const (
